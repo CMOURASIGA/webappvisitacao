@@ -1,28 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Inscricao, UpdateInscricaoData } from '../types';
-import { Loader2, AlertCircle } from 'lucide-react';
-
-const schema = z.object({
-  nome: z.string().min(1, 'Nome é obrigatório'),
-  idade: z.string().min(1, 'Idade é obrigatória'),
-  localidade: z.string().min(1, 'Localidade é obrigatória'),
-  status: z.enum(['Pendente', 'Confirmado', 'Cancelado'], {
-    errorMap: () => ({ message: 'Selecione um status válido' })
-  }),
-  tamanhoCamisa: z.enum(['PP', 'P', 'M', 'G', 'GG', 'XG'], {
-    errorMap: () => ({ message: 'Selecione um tamanho válido' })
-  }),
-  alergico: z.enum(['SIM', 'NAO'], {
-    errorMap: () => ({ message: 'Selecione SIM ou NÃO' })
-  }),
-  tipoAlergia: z.string().min(1, 'Informe o tipo de alergia (ou "Nenhuma" se não houver)'),
-  nomeSocial: z.string().min(1, 'Informe o nome social (ou repita o primeiro nome)'),
-});
-
-type FormData = z.infer<typeof schema>;
 
 interface EditFormProps {
   inscricao: Inscricao;
@@ -30,187 +7,287 @@ interface EditFormProps {
   onCancel: () => void;
 }
 
-export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function formatDateBR(value: string): string {
+  if (!value) return '';
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      nome: inscricao.nome || '',
-      idade: inscricao.idade || '',
-      localidade: inscricao.localidade || '',
-      status: (inscricao.status as any) || 'Pendente',
-      tamanhoCamisa: (inscricao.tamanhoCamisa as any) || undefined,
-      alergico: (inscricao.alergico as any) || undefined,
-      tipoAlergia: inscricao.tipoAlergia || '',
-      nomeSocial: inscricao.nomeSocial || '',
-    }
+  const text = String(value).trim();
+
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text;
+
+  const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear());
+
+  return `${day}/${month}/${year}`;
+}
+
+function toDateInputValue(value: string): string {
+  if (!value) return '';
+
+  const text = String(value).trim();
+
+  const brMatch = text.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (brMatch) return `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}`;
+
+  const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function fromDateInputValue(value: string): string {
+  if (!value) return '';
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return value;
+  return `${match[3]}/${match[2]}/${match[1]}`;
+}
+
+function Label({ children }: { children: React.ReactNode }) {
+  return <label className="mb-1 block text-sm font-medium text-slate-700">{children}</label>;
+}
+
+export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
+  const [form, setForm] = useState<UpdateInscricaoData>({
+    nome: inscricao.nome || '',
+    email: inscricao.email || '',
+    status: inscricao.status || '',
+    localidade: inscricao.localidade || '',
+    telefone: inscricao.telefone || '',
+    dataNascimento: formatDateBR(inscricao.dataNascimento || ''),
+    idade: inscricao.idade || '',
+    tamanhoCamisa: inscricao.tamanhoCamisa || '',
+    alergico: inscricao.alergico || '',
+    tipoAlergia: inscricao.tipoAlergia || '',
+    nomeSocial: inscricao.nomeSocial || '',
   });
 
-  const handleFormSubmit = async (data: FormData) => {
-    try {
-      setIsSubmitting(true);
-      setError(null);
-      await onSubmit(data);
-    } catch (err) {
-      setError('Ocorreu um erro ao salvar os dados. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  function updateField<K extends keyof UpdateInscricaoData>(field: K, value: UpdateInscricaoData[K]) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    setError('');
+
+    if (
+      !form.tamanhoCamisa ||
+      !form.alergico ||
+      !String(form.tipoAlergia || '').trim() ||
+      !String(form.nomeSocial || '').trim()
+    ) {
+      setError('Preencha todos os campos obrigatórios.');
+      return;
     }
-  };
+
+    try {
+      setIsSaving(true);
+      await onSubmit({
+        ...form,
+        tipoAlergia: String(form.tipoAlergia || '').trim(),
+        nomeSocial: String(form.nomeSocial || '').trim(),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5 h-full">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Dados principais</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Nome</Label>
+            <input
+              type="text"
+              value={form.nome}
+              onChange={(e) => updateField('nome', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>E-mail</Label>
+            <input
+              type="text"
+              value={form.email}
+              onChange={(e) => updateField('email', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Telefone</Label>
+            <input
+              type="text"
+              value={form.telefone}
+              onChange={(e) => updateField('telefone', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Status</Label>
+            <select
+              value={form.status}
+              onChange={(e) => updateField('status', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            >
+              <option value="">Selecione</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div>
+            <Label>Bairro</Label>
+            <input
+              type="text"
+              value={form.localidade}
+              onChange={(e) => updateField('localidade', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Idade</Label>
+            <input
+              type="text"
+              value={form.idade}
+              onChange={(e) => updateField('idade', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Sexo</Label>
+            <input
+              type="text"
+              value={inscricao.sexo || ''}
+              disabled
+              className="h-11 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-slate-600"
+            />
+          </div>
+
+          <div>
+            <Label>Data de cadastro</Label>
+            <input
+              type="text"
+              value={formatDateBR(inscricao.dataCadastro || '')}
+              disabled
+              className="h-11 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-slate-600"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Data de nascimento</Label>
+            <input
+              type="date"
+              value={toDateInputValue(form.dataNascimento)}
+              onChange={(e) => updateField('dataNascimento', fromDateInputValue(e.target.value))}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Confirmação de dados</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Tamanho de camisa</Label>
+            <select
+              value={form.tamanhoCamisa}
+              onChange={(e) => updateField('tamanhoCamisa', e.target.value as UpdateInscricaoData['tamanhoCamisa'])}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            >
+              <option value="">Selecione</option>
+              <option value="PP">PP</option>
+              <option value="P">P</option>
+              <option value="M">M</option>
+              <option value="G">G</option>
+              <option value="GG">GG</option>
+              <option value="XG">XG</option>
+            </select>
+          </div>
+
+          <div>
+            <Label>É alérgico</Label>
+            <select
+              value={form.alergico}
+              onChange={(e) => updateField('alergico', e.target.value as UpdateInscricaoData['alergico'])}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            >
+              <option value="">Selecione</option>
+              <option value="SIM">SIM</option>
+              <option value="NAO">NAO</option>
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Qual tipo de alergia</Label>
+            <input
+              type="text"
+              value={form.tipoAlergia}
+              onChange={(e) => updateField('tipoAlergia', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Nome social</Label>
+            <input
+              type="text"
+              value={form.nomeSocial}
+              onChange={(e) => updateField('nomeSocial', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+        </div>
+      </div>
+
       {error && (
-        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm flex items-start gap-2">
-          <AlertCircle size={16} className="mt-0.5 shrink-0" />
-          <p>{error}</p>
+        <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          {error}
         </div>
       )}
 
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          Nome Completo <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          {...register('nome')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full"
-        />
-        {errors.nome && <p className="mt-1 text-xs text-red-600">{errors.nome.message}</p>}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-[6px]">
-          <label className="text-[12px] font-semibold text-slate-500 uppercase">
-            Idade <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            {...register('idade')}
-            className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full"
-          />
-          {errors.idade && <p className="mt-1 text-xs text-red-600">{errors.idade.message}</p>}
-        </div>
-
-        <div className="flex flex-col gap-[6px]">
-          <label className="text-[12px] font-semibold text-slate-500 uppercase">
-            Status <span className="text-red-500">*</span>
-          </label>
-          <select
-            {...register('status')}
-            className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full bg-white"
-          >
-            <option value="Pendente">Pendente</option>
-            <option value="Confirmado">Confirmado</option>
-            <option value="Cancelado">Cancelado</option>
-          </select>
-          {errors.status && <p className="mt-1 text-xs text-red-600">{errors.status.message}</p>}
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          Localidade/Bairro <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          {...register('localidade')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full"
-        />
-        {errors.localidade && <p className="mt-1 text-xs text-red-600">{errors.localidade.message}</p>}
-      </div>
-
-      <div className="h-px bg-slate-200 my-2"></div>
-
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          Nome Social <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          {...register('nomeSocial')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full"
-          placeholder="Nome como deseja ser chamado"
-        />
-        {errors.nomeSocial && <p className="mt-1 text-xs text-red-600">{errors.nomeSocial.message}</p>}
-      </div>
-
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          Tamanho de Camisa <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register('tamanhoCamisa')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full bg-white"
-        >
-          <option value="">Selecione...</option>
-          <option value="PP">PP</option>
-          <option value="P">P</option>
-          <option value="M">M</option>
-          <option value="G">G</option>
-          <option value="GG">GG</option>
-          <option value="XG">XG</option>
-        </select>
-        {errors.tamanhoCamisa && <p className="mt-1 text-xs text-red-600">{errors.tamanhoCamisa.message}</p>}
-      </div>
-
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          É Alérgico? <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register('alergico')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full bg-white"
-        >
-          <option value="">Selecione...</option>
-          <option value="SIM">SIM</option>
-          <option value="NAO">NÃO</option>
-        </select>
-        {errors.alergico && <p className="mt-1 text-xs text-red-600">{errors.alergico.message}</p>}
-      </div>
-
-      <div className="flex flex-col gap-[6px]">
-        <label className="text-[12px] font-semibold text-slate-500 uppercase">
-          Qual tipo de alergia <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          {...register('tipoAlergia')}
-          className="p-2.5 border border-slate-200 rounded-md text-[14px] focus:outline-none focus:border-blue-600 w-full h-[60px] resize-none"
-          placeholder="Descreva a alergia ou digite 'NENHUMA'"
-        />
-        {errors.tipoAlergia && <p className="mt-1 text-xs text-red-600">{errors.tipoAlergia.message}</p>}
-      </div>
-
-      <div className="mt-[10px] flex flex-col gap-[10px]">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full h-[48px] px-5 py-2.5 rounded-lg font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Salvando...
-            </>
-          ) : (
-            'Salvar Alterações'
-          )}
-        </button>
+      <div className="flex items-center justify-end gap-3 pt-2">
         <button
           type="button"
           onClick={onCancel}
-          disabled={isSubmitting}
-          className="w-full px-5 py-2.5 rounded-lg font-semibold text-sm bg-transparent border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50"
+          className="h-11 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700"
         >
           Cancelar
         </button>
-      </div>
 
-      <div className="mt-auto p-3 bg-slate-50 rounded-lg flex items-center gap-2.5 text-[13px] text-slate-800">
-        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-        <span>Sistema Online - Sheets v4 API</span>
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="h-11 rounded-lg bg-[var(--color-brand-dark)] px-4 text-sm font-semibold text-white disabled:opacity-60"
+        >
+          {isSaving ? 'Salvando...' : 'Salvar'}
+        </button>
       </div>
     </form>
   );

@@ -1,20 +1,43 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+﻿# Webapp Novos adolescentes (EAC)
 
-# Run and deploy your AI Studio app
+Frontend React + TypeScript + Vite para leitura e edicao de registros da aba `Inscricoes_Prioritarias` via Google Apps Script Web App.
 
-This contains everything you need to run your app locally.
+## Requisitos
 
-View your app in AI Studio: https://ai.studio/apps/2c12f0a9-b93d-49c5-ad83-f9027e24ea95
+- Node.js 20+
+- URL de implantacao do Apps Script Web App
 
-## Run Locally
+## Configuracao local
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. Instale dependencias:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Crie o arquivo `.env.local`:
+   `copy .env.local.example .env.local`
+3. Defina `VITE_APPS_SCRIPT_URL_LOCAL` com sua URL de validacao do Apps Script.
+4. Rode em desenvolvimento:
    `npm run dev`
+
+## Variaveis de ambiente
+
+- `VITE_APPS_SCRIPT_URL_LOCAL`: URL do Apps Script para validacao local (usada no `npm run dev`).
+- `VITE_APPS_SCRIPT_URL`: URL do Apps Script para producao (configure no Vercel).
+- `VITE_API_URL`: fallback legado (opcional).
+
+## Vercel
+
+No painel da Vercel, configure em **Project Settings > Environment Variables**:
+
+- Nome: `VITE_APPS_SCRIPT_URL`
+- Valor: `https://script.google.com/macros/s/SEU_DEPLOY_ID_PROD/exec`
+- Ambientes: `Production` (e `Preview`, se quiser)
+
+## Apps Script
+
+Arquivo pronto para colar/publicar:
+
+- `apps-script/Codigo.gs`
+
+## Build
+
+- `npm run build`
+- `npm run preview`

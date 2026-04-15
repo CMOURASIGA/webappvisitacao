@@ -5,30 +5,56 @@ interface ViewDetailsProps {
   inscricao: Inscricao;
 }
 
-export function ViewDetails({ inscricao }: ViewDetailsProps) {
-  const DetailRow = ({ label, value }: { label: string; value: string }) => (
-    <div className="flex flex-col gap-1 py-3 border-b border-slate-100 last:border-0">
-      <dt className="text-[12px] font-semibold text-slate-500 uppercase">{label}</dt>
-      <dd className="text-[14px] text-slate-800">{value || <span className="text-slate-400 italic">Não informado</span>}</dd>
+function formatDateBR(value: string): string {
+  if (!value) return 'Nao informado';
+  const text = String(value).trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text;
+  const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear());
+  return `${day}/${month}/${year}`;
+}
+
+function Field({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="space-y-1 rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-sm text-slate-800">{value || 'Nao informado'}</p>
     </div>
   );
+}
 
+export function ViewDetails({ inscricao }: ViewDetailsProps) {
   return (
-    <dl className="flex flex-col gap-2">
-      <DetailRow label="Nome Completo" value={inscricao.nome} />
-      <DetailRow label="Nome Social" value={inscricao.nomeSocial} />
-      <DetailRow label="Idade" value={inscricao.idade} />
-      <DetailRow label="Localidade/Bairro" value={inscricao.localidade} />
-      <DetailRow label="Data de Cadastro" value={inscricao.dataCadastro} />
-      <DetailRow label="Status Original" value={inscricao.status} />
-      
-      <div className="mt-4 mb-2">
-        <h4 className="text-[14px] font-bold text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200">Dados Complementares</h4>
+    <div className="space-y-5">
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Dados principais</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Nome" value={inscricao.nome} />
+          <Field label="E-mail" value={inscricao.email} />
+          <Field label="Telefone" value={inscricao.telefone} />
+          <Field label="Status" value={inscricao.status} />
+          <Field label="Bairro" value={inscricao.localidade} />
+          <Field label="Idade" value={inscricao.idade} />
+          <Field label="Sexo" value={inscricao.sexo} />
+          <Field label="Data de cadastro" value={formatDateBR(inscricao.dataCadastro)} />
+          <Field label="Data de nascimento" value={formatDateBR(inscricao.dataNascimento)} />
+        </div>
       </div>
-      
-      <DetailRow label="Tamanho de Camisa" value={inscricao.tamanhoCamisa} />
-      <DetailRow label="É Alérgico?" value={inscricao.alergico} />
-      <DetailRow label="Tipo de Alergia" value={inscricao.tipoAlergia} />
-    </dl>
+
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Confirmacao de dados</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Tamanho de camisa" value={inscricao.tamanhoCamisa} />
+          <Field label="E alergico" value={inscricao.alergico} />
+          <Field label="Qual tipo de alergia" value={inscricao.tipoAlergia} />
+          <Field label="Nome social" value={inscricao.nomeSocial} />
+        </div>
+      </div>
+    </div>
   );
 }

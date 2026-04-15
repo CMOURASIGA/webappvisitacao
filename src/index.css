@@ -1,1 +1,18 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+
+:root {
+  --color-brand-dark: #1a2744;
+  --color-brand-accent: #f5a623;
+  --color-confirmed: #22c55e;
+  --color-pending: #f5a623;
+  --color-cancelled: #ef4444;
+  --page-bg: #f4f6fb;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background:
+    radial-gradient(circle at 10% -10%, rgba(245, 166, 35, 0.12) 0%, rgba(245, 166, 35, 0) 40%),
+    radial-gradient(circle at 90% 0%, rgba(26, 39, 68, 0.09) 0%, rgba(26, 39, 68, 0) 36%),
+    var(--page-bg);
+}

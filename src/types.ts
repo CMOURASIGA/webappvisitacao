@@ -1,23 +1,34 @@
+export type StatusValue = 'Pendente' | 'Confirmado' | 'Cancelado' | 'Ativo' | string;
+export type ShirtSize = 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG';
+export type AllergyValue = 'SIM' | 'NAO';
+
 export interface Inscricao {
   rowIndex: number;
-  dataCadastro: string;
   nome: string;
+  email: string;
+  status: StatusValue;
+  dataCadastro: string;
+  telefone: string;
   localidade: string;
+  dataNascimento: string;
   idade: string;
-  status: string;
-  tamanhoCamisa: string;
-  alergico: string;
+  sexo: string;
+  tamanhoCamisa: ShirtSize | '';
+  alergico: AllergyValue | '';
   tipoAlergia: string;
   nomeSocial: string;
 }
 
 export interface UpdateInscricaoData {
   nome: string;
-  idade: string;
+  email: string;
+  status: StatusValue;
+  telefone: string;
   localidade: string;
-  status: string;
-  tamanhoCamisa: string;
-  alergico: string;
+  dataNascimento: string;
+  idade: string;
+  tamanhoCamisa: ShirtSize | '';
+  alergico: AllergyValue | '';
   tipoAlergia: string;
   nomeSocial: string;
 }

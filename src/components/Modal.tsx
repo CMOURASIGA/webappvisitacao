@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -16,38 +16,28 @@ interface ModalProps {
 
 export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-end sm:justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-      <div 
-        className="bg-white w-full sm:max-w-[400px] h-[85vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-none sm:border-l sm:border-slate-200 shadow-xl flex flex-col animate-in slide-in-from-bottom-full sm:slide-in-from-right-full duration-300 sm:fixed sm:right-0 sm:top-0 sm:bottom-0"
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex justify-center sm:justify-end items-end sm:items-stretch">
+      <div
         role="dialog"
         aria-modal="true"
+        className="w-full sm:w-[460px] h-[90vh] sm:h-full bg-white rounded-t-2xl sm:rounded-none sm:border-l sm:border-slate-200 shadow-2xl flex flex-col"
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-200">
-          <h3 className="text-[18px] font-bold text-slate-800">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-100 transition-colors text-slate-500"
-            aria-label="Fechar"
-          >
-            <X size={20} />
+        <div className="h-14 px-4 border-b border-slate-200 bg-[var(--color-brand-dark)] text-white flex items-center justify-between">
+          <h3 className="text-sm font-semibold">{title}</h3>
+          <button type="button" onClick={onClose} className="p-1.5 rounded-md hover:bg-white/10" aria-label="Fechar modal">
+            <X size={18} />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto flex-grow flex flex-col">
-          {children}
-        </div>
+        <div className="p-4 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
