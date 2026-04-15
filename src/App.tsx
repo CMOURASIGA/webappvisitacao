@@ -1,13 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, Loader2, Search, X } from 'lucide-react';
+﻿import React, { useMemo, useState } from 'react';
+import { AlertCircle, CheckCircle2, Loader2, LogOut, Search, X } from 'lucide-react';
 import { EditForm } from './components/EditForm';
 import { Card } from './components/Card';
+import { LoginScreen } from './components/LoginScreen';
 import { Modal } from './components/Modal';
 import { StatusBar } from './components/StatusBar';
 import { ViewDetails } from './components/ViewDetails';
 import { updateInscricao } from './api/sheets';
 import { useInscricoes } from './hooks/useInscricoes';
+import { validarAcessoCarro } from './config/carrosAcesso';
 import { Inscricao, UpdateInscricaoData } from './types';
+
+interface SessaoCarro {
+  usuario: string;
+  numero: number;
+  responsavel: string;
+}
+
+const SESSION_KEY = 'carro_session';
 
 function normalizeText(value: string): string {
   return String(value || '')
@@ -17,7 +27,28 @@ function normalizeText(value: string): string {
     .trim();
 }
 
-export default function App() {
+function carregarSessao(): SessaoCarro | null {
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as SessaoCarro;
+    if (!parsed?.usuario || !parsed?.numero) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function salvarSessao(sessao: SessaoCarro) {
+  window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessao));
+}
+
+function limparSessao() {
+  window.sessionStorage.removeItem(SESSION_KEY);
+}
+
+function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: () => void }) {
   const { inscricoes, setInscricoes, isLoading, error, refresh } = useInscricoes();
 
   const [searchInput, setSearchInput] = useState('');
@@ -94,10 +125,13 @@ export default function App() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex items-center gap-3">
               <img src="https://i.imgur.com/c5XQ7TW.jpeg" alt="Logo EAC" className="h-10 w-auto rounded" referrerPolicy="no-referrer" />
-              <h1 className="truncate text-lg font-bold text-[var(--color-brand-dark)]">Inscricoes Prioritarias</h1>
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-bold text-[var(--color-brand-dark)]">Confirmacao Visitacao Novos adolescentes</h1>
+                <p className="text-xs text-slate-500">Carro {String(sessao.numero).padStart(2, '0')} · {sessao.responsavel}</p>
+              </div>
             </div>
 
-            <div className="flex w-full items-center gap-2 lg:w-[560px]">
+            <div className="flex w-full items-center gap-2 lg:w-[680px]">
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -125,6 +159,16 @@ export default function App() {
                 aria-label="Limpar busca"
               >
                 <X size={18} />
+              </button>
+
+              <button
+                type="button"
+                onClick={onLogout}
+                className="h-11 rounded-lg border border-slate-300 bg-white px-3 text-slate-600 hover:bg-slate-50"
+                aria-label="Sair"
+                title="Sair"
+              >
+                <LogOut size={18} />
               </button>
             </div>
           </div>
@@ -182,4 +226,36 @@ export default function App() {
       )}
     </div>
   );
+}
+
+export default function App() {
+  const [sessao, setSessao] = useState<SessaoCarro | null>(() => carregarSessao());
+
+  function handleLogin(usuario: string, senha: string): boolean {
+    const acesso = validarAcessoCarro(usuario, senha);
+    if (!acesso) {
+      return false;
+    }
+
+    const novaSessao: SessaoCarro = {
+      usuario: acesso.usuario,
+      numero: acesso.numero,
+      responsavel: acesso.responsavel,
+    };
+
+    salvarSessao(novaSessao);
+    setSessao(novaSessao);
+    return true;
+  }
+
+  function handleLogout() {
+    limparSessao();
+    setSessao(null);
+  }
+
+  if (!sessao) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  return <PainelVisitas sessao={sessao} onLogout={handleLogout} />;
 }
