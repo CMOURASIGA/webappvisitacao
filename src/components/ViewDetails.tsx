@@ -34,25 +34,55 @@ export function ViewDetails({ inscricao }: ViewDetailsProps) {
       <div>
         <h3 className="mb-3 text-sm font-semibold text-slate-700">Dados principais</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Field label="Nome" value={inscricao.nome} />
+          <Field label="Nome completo" value={inscricao.nome} />
+          <Field label="Nome social" value={inscricao.nomeSocial} />
           <Field label="E-mail" value={inscricao.email} />
           <Field label="Telefone" value={inscricao.telefone} />
+          <Field label="Celular" value={inscricao.celular} />
           <Field label="Status" value={inscricao.status} />
+          <Field label="Endereco completo" value={inscricao.enderecoCompleto} />
           <Field label="Bairro" value={inscricao.localidade} />
+          <Field label="Cidade" value={inscricao.cidade} />
+          <Field label="Estado" value={inscricao.estado} />
           <Field label="Idade" value={inscricao.idade} />
           <Field label="Sexo" value={inscricao.sexo} />
+          <Field label="Nome do pai" value={inscricao.nomePai} />
+          <Field label="Nome da mae" value={inscricao.nomeMae} />
           <Field label="Data de cadastro" value={formatDateBR(inscricao.dataCadastro)} />
           <Field label="Data de nascimento" value={formatDateBR(inscricao.dataNascimento)} />
         </div>
       </div>
 
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">Confirmacao de dados</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Campos adicionais</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Escola" value={inscricao.escola} />
+          <Field label="Turno" value={inscricao.turno} />
+          <Field label="Serie" value={inscricao.serie} />
+          <Field label="Grau" value={inscricao.grau} />
+          <Field label="Quem convidou para o EAC" value={inscricao.quemConvidouEac} />
+          <Field label="Paroquia" value={inscricao.paroquia} />
+          <Field label="Motivo para fazer o encontro" value={inscricao.motivoEncontro} />
+          <Field label="Valor da contribuicao" value={inscricao.valorContribuicao} />
+          <Field label="Visitado pelo tio da visitacao" value={inscricao.visitadoTioVisitacao} />
           <Field label="Tamanho de camisa" value={inscricao.tamanhoCamisa} />
-          <Field label="E alergico" value={inscricao.alergico} />
-          <Field label="Qual tipo de alergia" value={inscricao.tipoAlergia} />
-          <Field label="Nome social" value={inscricao.nomeSocial} />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Perguntas com opcoes</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field label="Ja participou de algum encontro?" value={inscricao.jaParticipouEncontro} />
+          <Field label="Qual encontro ja participou?" value={inscricao.qualEncontroAnterior} />
+          <Field label="Seus pais ja fizeram ECC?" value={inscricao.paisFizeramECC} />
+          <Field label="E batizado?" value={inscricao.batizado} />
+          <Field label="Fez a Primeira Comunhao?" value={inscricao.primeiraComunhao} />
+          <Field label="E crismado?" value={inscricao.crismado} />
+          <Field label="Toca instrumento musical?" value={inscricao.tocaInstrumento} />
+          <Field label="Gosta de cantar?" value={inscricao.gostaCantar} />
+          <Field label="Familia em outra doutrina nao catolica?" value={inscricao.familiaOutraDoutrina} />
+          <Field label="Restricao alimentar" value={inscricao.alergico} />
+          <Field label="Se sim, qual restricao?" value={inscricao.tipoAlergia} />
         </div>
       </div>
     </div>

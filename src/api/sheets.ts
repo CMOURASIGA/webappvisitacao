@@ -54,6 +54,30 @@ function normalizeInscricao(item: unknown): Inscricao {
     alergico: (safe.alergico ?? '') as Inscricao['alergico'],
     tipoAlergia: String(safe.tipoAlergia ?? ''),
     nomeSocial: String(safe.nomeSocial ?? ''),
+    celular: String(safe.celular ?? ''),
+    nomePai: String(safe.nomePai ?? ''),
+    nomeMae: String(safe.nomeMae ?? ''),
+    enderecoCompleto: String(safe.enderecoCompleto ?? ''),
+    cidade: String(safe.cidade ?? ''),
+    estado: String(safe.estado ?? ''),
+    escola: String(safe.escola ?? ''),
+    turno: String(safe.turno ?? ''),
+    serie: String(safe.serie ?? ''),
+    grau: String(safe.grau ?? ''),
+    jaParticipouEncontro: (safe.jaParticipouEncontro ?? '') as Inscricao['jaParticipouEncontro'],
+    qualEncontroAnterior: String(safe.qualEncontroAnterior ?? ''),
+    paisFizeramECC: (safe.paisFizeramECC ?? '') as Inscricao['paisFizeramECC'],
+    batizado: (safe.batizado ?? '') as Inscricao['batizado'],
+    primeiraComunhao: (safe.primeiraComunhao ?? '') as Inscricao['primeiraComunhao'],
+    crismado: (safe.crismado ?? '') as Inscricao['crismado'],
+    tocaInstrumento: (safe.tocaInstrumento ?? '') as Inscricao['tocaInstrumento'],
+    gostaCantar: (safe.gostaCantar ?? '') as Inscricao['gostaCantar'],
+    familiaOutraDoutrina: (safe.familiaOutraDoutrina ?? '') as Inscricao['familiaOutraDoutrina'],
+    quemConvidouEac: String(safe.quemConvidouEac ?? ''),
+    paroquia: String(safe.paroquia ?? ''),
+    motivoEncontro: String(safe.motivoEncontro ?? ''),
+    valorContribuicao: String(safe.valorContribuicao ?? ''),
+    visitadoTioVisitacao: (safe.visitadoTioVisitacao ?? '') as Inscricao['visitadoTioVisitacao'],
   };
 }
 
@@ -90,11 +114,15 @@ export async function readInscricoes(q = ''): Promise<Inscricao[]> {
     .filter((item) => Number.isFinite(item.rowIndex) && item.rowIndex > 1 && item.nome.trim());
 }
 
-export async function updateInscricao(rowIndex: number, data: UpdateInscricaoData): Promise<void> {
+export async function updateInscricao(
+  rowIndex: number,
+  data: UpdateInscricaoData,
+  notifyResponsavel = false,
+): Promise<void> {
   const response = await fetch(getRequestBase(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'update', rowIndex, data }),
+    body: JSON.stringify({ action: 'update', rowIndex, data, notifyResponsavel }),
   });
 
   if (!response.ok) {

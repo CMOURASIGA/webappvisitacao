@@ -3,7 +3,7 @@ import { Inscricao, UpdateInscricaoData } from '../types';
 
 interface EditFormProps {
   inscricao: Inscricao;
-  onSubmit: (data: UpdateInscricaoData) => Promise<void>;
+  onSubmit: (data: UpdateInscricaoData, options: { notifyResponsavel: boolean }) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -59,6 +59,26 @@ function Label({ children }: { children: React.ReactNode }) {
   return <label className="mb-1 block text-sm font-medium text-slate-700">{children}</label>;
 }
 
+function YesNoSelect({
+  value,
+  onChange,
+}: {
+  value: '' | 'SIM' | 'NAO';
+  onChange: (next: '' | 'SIM' | 'NAO') => void;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as '' | 'SIM' | 'NAO')}
+      className="h-11 w-full rounded-lg border border-slate-300 px-3"
+    >
+      <option value="">Selecione</option>
+      <option value="SIM">SIM</option>
+      <option value="NAO">NAO</option>
+    </select>
+  );
+}
+
 export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
   const [form, setForm] = useState<UpdateInscricaoData>({
     nome: inscricao.nome || '',
@@ -72,10 +92,36 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     alergico: inscricao.alergico || '',
     tipoAlergia: inscricao.tipoAlergia || '',
     nomeSocial: inscricao.nomeSocial || '',
+    celular: inscricao.celular || '',
+    nomePai: inscricao.nomePai || '',
+    nomeMae: inscricao.nomeMae || '',
+    enderecoCompleto: inscricao.enderecoCompleto || '',
+    cidade: inscricao.cidade || '',
+    estado: inscricao.estado || '',
+    escola: inscricao.escola || '',
+    turno: inscricao.turno || '',
+    serie: inscricao.serie || '',
+    grau: inscricao.grau || '',
+    jaParticipouEncontro: inscricao.jaParticipouEncontro || '',
+    qualEncontroAnterior: inscricao.qualEncontroAnterior || '',
+    paisFizeramECC: inscricao.paisFizeramECC || '',
+    batizado: inscricao.batizado || '',
+    primeiraComunhao: inscricao.primeiraComunhao || '',
+    crismado: inscricao.crismado || '',
+    tocaInstrumento: inscricao.tocaInstrumento || '',
+    gostaCantar: inscricao.gostaCantar || '',
+    familiaOutraDoutrina: inscricao.familiaOutraDoutrina || '',
+    quemConvidouEac: inscricao.quemConvidouEac || '',
+    paroquia: inscricao.paroquia || '',
+    motivoEncontro: inscricao.motivoEncontro || '',
+    valorContribuicao: inscricao.valorContribuicao || '',
+    visitadoTioVisitacao: inscricao.visitadoTioVisitacao || '',
   });
 
+  const [notifyResponsavel, setNotifyResponsavel] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'principais' | 'demais'>('principais');
 
   function updateField<K extends keyof UpdateInscricaoData>(field: K, value: UpdateInscricaoData[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -85,23 +131,33 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     event.preventDefault();
     setError('');
 
-    if (
-      !form.tamanhoCamisa ||
-      !form.alergico ||
-      !String(form.tipoAlergia || '').trim() ||
-      !String(form.nomeSocial || '').trim()
-    ) {
-      setError('Preencha todos os campos obrigatórios.');
+    if (form.alergico === 'SIM' && !String(form.tipoAlergia || '').trim()) {
+      setError('Preencha o tipo de restricao alimentar quando marcar SIM.');
+      return;
+    }
+
+    if (form.jaParticipouEncontro === 'SIM' && !String(form.qualEncontroAnterior || '').trim()) {
+      setError('Preencha o campo Qual quando marcar que ja participou de outro encontro.');
       return;
     }
 
     try {
       setIsSaving(true);
-      await onSubmit({
-        ...form,
-        tipoAlergia: String(form.tipoAlergia || '').trim(),
-        nomeSocial: String(form.nomeSocial || '').trim(),
-      });
+      await onSubmit(
+        {
+          ...form,
+          tipoAlergia: String(form.tipoAlergia || '').trim(),
+          nomeSocial: String(form.nomeSocial || '').trim(),
+          qualEncontroAnterior: String(form.qualEncontroAnterior || '').trim(),
+          quemConvidouEac: String(form.quemConvidouEac || '').trim(),
+          paroquia: String(form.paroquia || '').trim(),
+          motivoEncontro: String(form.motivoEncontro || '').trim(),
+          enderecoCompleto: String(form.enderecoCompleto || '').trim(),
+          nomePai: String(form.nomePai || '').trim(),
+          nomeMae: String(form.nomeMae || '').trim(),
+        },
+        { notifyResponsavel },
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao salvar.');
     } finally {
@@ -110,12 +166,38 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="flex gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1">
+        <button
+          type="button"
+          onClick={() => setActiveTab('principais')}
+          className={`h-10 rounded-md px-4 text-sm font-semibold ${
+            activeTab === 'principais'
+              ? 'bg-white text-[var(--color-brand-dark)] shadow-sm'
+              : 'text-slate-600'
+          }`}
+        >
+          Campos principais
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('demais')}
+          className={`h-10 rounded-md px-4 text-sm font-semibold ${
+            activeTab === 'demais'
+              ? 'bg-white text-[var(--color-brand-dark)] shadow-sm'
+              : 'text-slate-600'
+          }`}
+        >
+          Demais informacoes
+        </button>
+      </div>
+
+      {activeTab === 'principais' && (
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">Dados principais</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Campos principais</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <Label>Nome</Label>
+            <Label>Nome completo do adolescente</Label>
             <input
               type="text"
               value={form.nome}
@@ -125,21 +207,21 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>E-mail</Label>
+            <Label>Como gostaria de ser chamado no EAC</Label>
             <input
               type="text"
-              value={form.email}
-              onChange={(e) => updateField('email', e.target.value)}
+              value={form.nomeSocial}
+              onChange={(e) => updateField('nomeSocial', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
 
           <div>
-            <Label>Telefone</Label>
+            <Label>E-mail do responsavel</Label>
             <input
               type="text"
-              value={form.telefone}
-              onChange={(e) => updateField('telefone', e.target.value)}
+              value={form.email}
+              onChange={(e) => updateField('email', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
@@ -160,11 +242,11 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Bairro</Label>
+            <Label>Data de nascimento</Label>
             <input
-              type="text"
-              value={form.localidade}
-              onChange={(e) => updateField('localidade', e.target.value)}
+              type="date"
+              value={toDateInputValue(form.dataNascimento)}
+              onChange={(e) => updateField('dataNascimento', fromDateInputValue(e.target.value))}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
@@ -175,6 +257,85 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               type="text"
               value={form.idade}
               onChange={(e) => updateField('idade', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Telefone</Label>
+            <input
+              type="text"
+              value={form.telefone}
+              onChange={(e) => updateField('telefone', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Celular</Label>
+            <input
+              type="text"
+              value={form.celular}
+              onChange={(e) => updateField('celular', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Endereco completo</Label>
+            <textarea
+              value={form.enderecoCompleto}
+              onChange={(e) => updateField('enderecoCompleto', e.target.value)}
+              className="min-h-[84px] w-full rounded-lg border border-slate-300 px-3 py-2"
+            />
+          </div>
+
+          <div>
+            <Label>Bairro</Label>
+            <input
+              type="text"
+              value={form.localidade}
+              onChange={(e) => updateField('localidade', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Cidade</Label>
+            <input
+              type="text"
+              value={form.cidade}
+              onChange={(e) => updateField('cidade', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Estado</Label>
+            <input
+              type="text"
+              value={form.estado}
+              onChange={(e) => updateField('estado', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Nome do pai</Label>
+            <input
+              type="text"
+              value={form.nomePai}
+              onChange={(e) => updateField('nomePai', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Nome da mae</Label>
+            <input
+              type="text"
+              value={form.nomeMae}
+              onChange={(e) => updateField('nomeMae', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
@@ -198,22 +359,75 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               className="h-11 w-full rounded-lg border border-slate-200 bg-slate-100 px-3 text-slate-600"
             />
           </div>
+        </div>
+      </div>
+      )}
 
-          <div className="sm:col-span-2">
-            <Label>Data de nascimento</Label>
+      {activeTab === 'demais' && (
+      <>
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Campos adicionais</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Escola em que estuda</Label>
             <input
-              type="date"
-              value={toDateInputValue(form.dataNascimento)}
-              onChange={(e) => updateField('dataNascimento', fromDateInputValue(e.target.value))}
+              type="text"
+              value={form.escola}
+              onChange={(e) => updateField('escola', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
-        </div>
-      </div>
 
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">Confirmação de dados</h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Turno</Label>
+            <input
+              type="text"
+              value={form.turno}
+              onChange={(e) => updateField('turno', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Serie</Label>
+            <input
+              type="text"
+              value={form.serie}
+              onChange={(e) => updateField('serie', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Grau</Label>
+            <input
+              type="text"
+              value={form.grau}
+              onChange={(e) => updateField('grau', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Quem te convidou para o EAC</Label>
+            <input
+              type="text"
+              value={form.quemConvidouEac}
+              onChange={(e) => updateField('quemConvidouEac', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Qual paroquia pertence</Label>
+            <input
+              type="text"
+              value={form.paroquia}
+              onChange={(e) => updateField('paroquia', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
           <div>
             <Label>Tamanho de camisa</Label>
             <select
@@ -232,20 +446,106 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>É alérgico</Label>
-            <select
-              value={form.alergico}
-              onChange={(e) => updateField('alergico', e.target.value as UpdateInscricaoData['alergico'])}
+            <Label>Valor da contribuicao</Label>
+            <input
+              type="text"
+              value={form.valorContribuicao}
+              onChange={(e) => updateField('valorContribuicao', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
-            >
-              <option value="">Selecione</option>
-              <option value="SIM">SIM</option>
-              <option value="NAO">NAO</option>
-            </select>
+            />
+          </div>
+
+          <div>
+            <Label>Visitado pelo tio da visitacao</Label>
+            <YesNoSelect
+              value={form.visitadoTioVisitacao}
+              onChange={(next) => updateField('visitadoTioVisitacao', next)}
+            />
           </div>
 
           <div className="sm:col-span-2">
-            <Label>Qual tipo de alergia</Label>
+            <Label>Por que quer fazer o encontro?</Label>
+            <textarea
+              value={form.motivoEncontro}
+              onChange={(e) => updateField('motivoEncontro', e.target.value)}
+              className="min-h-[84px] w-full rounded-lg border border-slate-300 px-3 py-2"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Perguntas com opcoes</h3>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <Label>Ja participou de algum encontro?</Label>
+            <YesNoSelect
+              value={form.jaParticipouEncontro}
+              onChange={(next) => updateField('jaParticipouEncontro', next)}
+            />
+          </div>
+
+          <div>
+            <Label>Qual?</Label>
+            <input
+              type="text"
+              value={form.qualEncontroAnterior}
+              onChange={(e) => updateField('qualEncontroAnterior', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Seus pais ja fizeram ECC?</Label>
+            <YesNoSelect value={form.paisFizeramECC} onChange={(next) => updateField('paisFizeramECC', next)} />
+          </div>
+
+          <div>
+            <Label>E batizado?</Label>
+            <YesNoSelect value={form.batizado} onChange={(next) => updateField('batizado', next)} />
+          </div>
+
+          <div>
+            <Label>Fez a Primeira Comunhao?</Label>
+            <YesNoSelect
+              value={form.primeiraComunhao}
+              onChange={(next) => updateField('primeiraComunhao', next)}
+            />
+          </div>
+
+          <div>
+            <Label>E crismado?</Label>
+            <YesNoSelect value={form.crismado} onChange={(next) => updateField('crismado', next)} />
+          </div>
+
+          <div>
+            <Label>Toca algum instrumento musical?</Label>
+            <YesNoSelect
+              value={form.tocaInstrumento}
+              onChange={(next) => updateField('tocaInstrumento', next)}
+            />
+          </div>
+
+          <div>
+            <Label>Gosta de cantar?</Label>
+            <YesNoSelect value={form.gostaCantar} onChange={(next) => updateField('gostaCantar', next)} />
+          </div>
+
+          <div>
+            <Label>Alguem da familia pertence a outra doutrina nao catolica?</Label>
+            <YesNoSelect
+              value={form.familiaOutraDoutrina}
+              onChange={(next) => updateField('familiaOutraDoutrina', next)}
+            />
+          </div>
+
+          <div>
+            <Label>Restricao alimentar</Label>
+            <YesNoSelect value={form.alergico} onChange={(next) => updateField('alergico', next)} />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Se sim, qual?</Label>
             <input
               type="text"
               value={form.tipoAlergia}
@@ -253,17 +553,21 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
-
-          <div className="sm:col-span-2">
-            <Label>Nome social</Label>
-            <input
-              type="text"
-              value={form.nomeSocial}
-              onChange={(e) => updateField('nomeSocial', e.target.value)}
-              className="h-11 w-full rounded-lg border border-slate-300 px-3"
-            />
-          </div>
         </div>
+      </div>
+      </>
+      )}
+
+      <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+        <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={notifyResponsavel}
+            onChange={(e) => setNotifyResponsavel(e.target.checked)}
+            className="h-4 w-4 rounded border-slate-300"
+          />
+          Deseja enviar e-mail ao responsavel apos salvar?
+        </label>
       </div>
 
       {error && (

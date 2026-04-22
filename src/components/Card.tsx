@@ -40,8 +40,8 @@ function isIncomplete(inscricao: Inscricao): boolean {
   return (
     !inscricao.tamanhoCamisa ||
     !inscricao.alergico ||
-    !String(inscricao.tipoAlergia || '').trim() ||
-    !String(inscricao.nomeSocial || '').trim()
+    !String(inscricao.nomeSocial || '').trim() ||
+    (inscricao.alergico === 'SIM' && !String(inscricao.tipoAlergia || '').trim())
   );
 }
 

@@ -1,6 +1,7 @@
 export type StatusValue = 'Pendente' | 'Confirmado' | 'Cancelado' | 'Ativo' | string;
 export type ShirtSize = 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG';
 export type AllergyValue = 'SIM' | 'NAO';
+export type YesNoValue = 'SIM' | 'NAO';
 
 export interface Inscricao {
   rowIndex: number;
@@ -17,6 +18,30 @@ export interface Inscricao {
   alergico: AllergyValue | '';
   tipoAlergia: string;
   nomeSocial: string;
+  celular: string;
+  nomePai: string;
+  nomeMae: string;
+  enderecoCompleto: string;
+  cidade: string;
+  estado: string;
+  escola: string;
+  turno: string;
+  serie: string;
+  grau: string;
+  jaParticipouEncontro: YesNoValue | '';
+  qualEncontroAnterior: string;
+  paisFizeramECC: YesNoValue | '';
+  batizado: YesNoValue | '';
+  primeiraComunhao: YesNoValue | '';
+  crismado: YesNoValue | '';
+  tocaInstrumento: YesNoValue | '';
+  gostaCantar: YesNoValue | '';
+  familiaOutraDoutrina: YesNoValue | '';
+  quemConvidouEac: string;
+  paroquia: string;
+  motivoEncontro: string;
+  valorContribuicao: string;
+  visitadoTioVisitacao: YesNoValue | '';
 }
 
 export interface UpdateInscricaoData {
@@ -31,4 +56,28 @@ export interface UpdateInscricaoData {
   alergico: AllergyValue | '';
   tipoAlergia: string;
   nomeSocial: string;
+  celular: string;
+  nomePai: string;
+  nomeMae: string;
+  enderecoCompleto: string;
+  cidade: string;
+  estado: string;
+  escola: string;
+  turno: string;
+  serie: string;
+  grau: string;
+  jaParticipouEncontro: YesNoValue | '';
+  qualEncontroAnterior: string;
+  paisFizeramECC: YesNoValue | '';
+  batizado: YesNoValue | '';
+  primeiraComunhao: YesNoValue | '';
+  crismado: YesNoValue | '';
+  tocaInstrumento: YesNoValue | '';
+  gostaCantar: YesNoValue | '';
+  familiaOutraDoutrina: YesNoValue | '';
+  quemConvidouEac: string;
+  paroquia: string;
+  motivoEncontro: string;
+  valorContribuicao: string;
+  visitadoTioVisitacao: YesNoValue | '';
 }

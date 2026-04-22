@@ -77,10 +77,10 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
     window.setTimeout(() => setToast(null), 3000);
   }
 
-  async function handleUpdate(data: UpdateInscricaoData) {
+  async function handleUpdate(data: UpdateInscricaoData, options: { notifyResponsavel: boolean }) {
     if (!selectedInscricao) return;
 
-    await updateInscricao(selectedInscricao.rowIndex, data);
+    await updateInscricao(selectedInscricao.rowIndex, data, options.notifyResponsavel);
 
     setInscricoes((prev) =>
       prev.map((item) =>
