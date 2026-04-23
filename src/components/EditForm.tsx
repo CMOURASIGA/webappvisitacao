@@ -116,6 +116,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     motivoEncontro: inscricao.motivoEncontro || '',
     valorContribuicao: inscricao.valorContribuicao || '',
     visitadoTioVisitacao: inscricao.visitadoTioVisitacao || '',
+    desistiu: inscricao.desistiu || '',
   });
 
   const [notifyResponsavel, setNotifyResponsavel] = useState(false);
@@ -125,6 +126,14 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
 
   function updateField<K extends keyof UpdateInscricaoData>(field: K, value: UpdateInscricaoData[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleDesistiuChange(value: '' | 'SIM' | 'NAO') {
+    setForm((prev) => ({
+      ...prev,
+      desistiu: value,
+      status: value === 'SIM' ? 'Nao confirmado' : prev.status,
+    }));
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -146,6 +155,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
       await onSubmit(
         {
           ...form,
+          status: form.desistiu === 'SIM' ? 'Nao confirmado' : form.status,
           tipoAlergia: String(form.tipoAlergia || '').trim(),
           nomeSocial: String(form.nomeSocial || '').trim(),
           qualEncontroAnterior: String(form.qualEncontroAnterior || '').trim(),
@@ -231,14 +241,21 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
             <select
               value={form.status}
               onChange={(e) => updateField('status', e.target.value)}
+              disabled={form.desistiu === 'SIM'}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             >
               <option value="">Selecione</option>
               <option value="Ativo">Ativo</option>
               <option value="Confirmado">Confirmado</option>
+              <option value="Nao confirmado">Nao confirmado</option>
               <option value="Pendente">Pendente</option>
               <option value="Cancelado">Cancelado</option>
             </select>
+          </div>
+
+          <div>
+            <Label>Desistiu?</Label>
+            <YesNoSelect value={form.desistiu} onChange={handleDesistiuChange} />
           </div>
 
           <div>

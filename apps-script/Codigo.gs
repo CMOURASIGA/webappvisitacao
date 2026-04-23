@@ -39,6 +39,7 @@ const COL = {
   motivoEncontro: 45,         // AT
   valorContribuicao: 46,      // AU
   visitadoTioVisitacao: 47,   // AV
+  desistiu: 48,               // AW
 };
 
 function getSheet() {
@@ -123,6 +124,7 @@ function doGet(e) {
           motivoEncontro: String(row[COL.motivoEncontro] || ''),
           valorContribuicao: String(row[COL.valorContribuicao] || ''),
           visitadoTioVisitacao: sanitizeYesNo(row[COL.visitadoTioVisitacao]),
+          desistiu: sanitizeYesNo(row[COL.desistiu]),
         };
       })
       .filter(function (item) {
@@ -162,6 +164,13 @@ function doPost(e) {
     }
 
     const sheet = getSheet();
+    const desistiuValue = sanitizeYesNo(data.desistiu);
+    if (data.desistiu !== undefined) {
+      data.desistiu = desistiuValue;
+      if (desistiuValue === 'SIM') {
+        data.status = 'Nao confirmado';
+      }
+    }
 
     const updatableCols = {
       nome: COL.nome,
@@ -199,6 +208,7 @@ function doPost(e) {
       motivoEncontro: COL.motivoEncontro,
       valorContribuicao: COL.valorContribuicao,
       visitadoTioVisitacao: COL.visitadoTioVisitacao,
+      desistiu: COL.desistiu,
     };
 
     Object.keys(updatableCols).forEach(function (key) {

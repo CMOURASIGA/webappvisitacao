@@ -26,6 +26,10 @@ const STATUS_CLASSES: Record<string, { stripe: string; badge: string }> = {
     stripe: 'bg-[var(--color-cancelled)]',
     badge: 'bg-rose-100 text-rose-800',
   },
+  'Nao confirmado': {
+    stripe: 'bg-slate-500',
+    badge: 'bg-slate-200 text-slate-800',
+  },
 };
 
 function getInitials(value: string): string {

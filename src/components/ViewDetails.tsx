@@ -65,6 +65,7 @@ export function ViewDetails({ inscricao }: ViewDetailsProps) {
           <Field label="Motivo para fazer o encontro" value={inscricao.motivoEncontro} />
           <Field label="Valor da contribuicao" value={inscricao.valorContribuicao} />
           <Field label="Visitado pelo tio da visitacao" value={inscricao.visitadoTioVisitacao} />
+          <Field label="Desistiu" value={inscricao.desistiu} />
           <Field label="Tamanho de camisa" value={inscricao.tamanhoCamisa} />
         </div>
       </div>

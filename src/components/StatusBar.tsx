@@ -11,6 +11,7 @@ function isConfirmed(status: string): boolean {
 
 export function StatusBar({ inscricoes }: StatusBarProps) {
   const confirmed = inscricoes.filter((item) => isConfirmed(item.status)).length;
+  const notConfirmed = inscricoes.filter((item) => item.status === 'Nao confirmado').length;
   const pending = inscricoes.filter((item) => item.status === 'Pendente').length;
   const cancelled = inscricoes.filter((item) => item.status === 'Cancelado').length;
 
@@ -19,6 +20,10 @@ export function StatusBar({ inscricoes }: StatusBarProps) {
       <span className="inline-flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-confirmed)]" />
         Confirmados: {confirmed}
+      </span>
+      <span className="inline-flex items-center gap-2">
+        <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
+        Nao confirmados: {notConfirmed}
       </span>
       <span className="inline-flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-pending)]" />

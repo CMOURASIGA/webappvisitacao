@@ -1,4 +1,4 @@
-export type StatusValue = 'Pendente' | 'Confirmado' | 'Cancelado' | 'Ativo' | string;
+export type StatusValue = 'Pendente' | 'Confirmado' | 'Nao confirmado' | 'Cancelado' | 'Ativo' | string;
 export type ShirtSize = 'PP' | 'P' | 'M' | 'G' | 'GG' | 'XG';
 export type AllergyValue = 'SIM' | 'NAO';
 export type YesNoValue = 'SIM' | 'NAO';
@@ -42,6 +42,7 @@ export interface Inscricao {
   motivoEncontro: string;
   valorContribuicao: string;
   visitadoTioVisitacao: YesNoValue | '';
+  desistiu: YesNoValue | '';
 }
 
 export interface UpdateInscricaoData {
@@ -80,4 +81,5 @@ export interface UpdateInscricaoData {
   motivoEncontro: string;
   valorContribuicao: string;
   visitadoTioVisitacao: YesNoValue | '';
+  desistiu: YesNoValue | '';
 }

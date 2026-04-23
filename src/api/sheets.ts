@@ -78,6 +78,7 @@ function normalizeInscricao(item: unknown): Inscricao {
     motivoEncontro: String(safe.motivoEncontro ?? ''),
     valorContribuicao: String(safe.valorContribuicao ?? ''),
     visitadoTioVisitacao: (safe.visitadoTioVisitacao ?? '') as Inscricao['visitadoTioVisitacao'],
+    desistiu: (safe.desistiu ?? '') as Inscricao['desistiu'],
   };
 }
 
