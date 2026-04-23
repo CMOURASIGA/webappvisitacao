@@ -131,8 +131,8 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
               </div>
             </div>
 
-            <div className="flex w-full items-center gap-2 lg:w-[680px]">
-              <div className="relative flex-1">
+            <div className="w-full lg:w-[680px] space-y-2">
+              <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -144,32 +144,34 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={handleSearch}
-                className="h-11 rounded-lg bg-[var(--color-brand-accent)] px-4 text-sm font-semibold text-slate-900 hover:brightness-95"
-              >
-                Pesquisar
-              </button>
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="h-11 rounded-lg bg-[var(--color-brand-accent)] px-4 text-sm font-semibold text-slate-900 hover:brightness-95 sm:min-w-[120px]"
+                >
+                  Pesquisar
+                </button>
 
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="h-11 rounded-lg border border-slate-300 bg-white px-3 text-slate-600 hover:bg-slate-50"
-                aria-label="Limpar busca"
-              >
-                <X size={18} />
-              </button>
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="h-11 rounded-lg border border-slate-300 bg-white px-3 text-slate-600 hover:bg-slate-50"
+                  aria-label="Limpar busca"
+                >
+                  <X size={18} className="mx-auto" />
+                </button>
 
-              <button
-                type="button"
-                onClick={onLogout}
-                className="h-11 rounded-lg border border-slate-300 bg-white px-3 text-slate-600 hover:bg-slate-50"
-                aria-label="Sair"
-                title="Sair"
-              >
-                <LogOut size={18} />
-              </button>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="h-11 rounded-lg border border-slate-300 bg-white px-3 text-slate-600 hover:bg-slate-50"
+                  aria-label="Sair"
+                  title="Sair"
+                >
+                  <LogOut size={18} className="mx-auto" />
+                </button>
+              </div>
             </div>
           </div>
         </div>

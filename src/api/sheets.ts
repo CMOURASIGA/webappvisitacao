@@ -122,9 +122,10 @@ export async function updateInscricao(
   data: UpdateInscricaoData,
   notifyResponsavel = false,
 ): Promise<void> {
+  // Apps Script Web App does not answer CORS preflight OPTIONS reliably.
+  // Sending plain text JSON keeps this as a simple POST request.
   const response = await fetch(getRequestBase(), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'update', rowIndex, data, notifyResponsavel }),
   });
 
