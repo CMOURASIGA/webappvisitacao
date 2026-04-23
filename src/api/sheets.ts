@@ -53,6 +53,8 @@ function normalizeInscricao(item: unknown): Inscricao {
     tamanhoCamisa: (safe.tamanhoCamisa ?? '') as Inscricao['tamanhoCamisa'],
     alergico: (safe.alergico ?? '') as Inscricao['alergico'],
     tipoAlergia: String(safe.tipoAlergia ?? ''),
+    restricaoMedicamentosa: (safe.restricaoMedicamentosa ?? '') as Inscricao['restricaoMedicamentosa'],
+    tipoRestricaoMedicamentosa: String(safe.tipoRestricaoMedicamentosa ?? ''),
     nomeSocial: String(safe.nomeSocial ?? ''),
     celular: String(safe.celular ?? ''),
     nomePai: String(safe.nomePai ?? ''),

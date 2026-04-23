@@ -40,7 +40,136 @@ const COL = {
   valorContribuicao: 46,      // AU
   visitadoTioVisitacao: 47,   // AV
   desistiu: 48,               // AW
+  restricaoMedicamentosa: 49, // AX
+  tipoRestricaoMedicamentosa: 50, // AY
 };
+
+const HEADER_BY_KEY = {
+  nome: 'Nome',
+  email: 'E-mail',
+  status: 'Status',
+  dataCadastro: 'Data Cadastro',
+  telefone: 'Telefone',
+  localidade: 'Bairro',
+  dataNascimento: 'Data de nascimento',
+  idade: 'Idade',
+  sexo: 'Sexo',
+  tamanhoCamisa: 'Tamanho camisa',
+  alergico: 'Alergico',
+  tipoAlergia: 'Observacao Alergico',
+  nomeSocial: 'Nome Social',
+  celular: 'Celular',
+  nomePai: 'Nome do pai',
+  nomeMae: 'Nome da mae',
+  enderecoCompleto: 'Endereco completo',
+  cidade: 'Cidade',
+  estado: 'Estado',
+  escola: 'Escola em que estuda',
+  turno: 'Turno',
+  serie: 'Serie',
+  grau: 'Grau',
+  jaParticipouEncontro: 'Ja participou de algum encontro?',
+  qualEncontroAnterior: 'Qual encontro?',
+  paisFizeramECC: 'Seus pais ja fizeram ECC?',
+  batizado: 'E batizado?',
+  primeiraComunhao: 'Fez a Primeira Comunhao?',
+  crismado: 'E crismado?',
+  tocaInstrumento: 'Toca algum instrumento musical?',
+  gostaCantar: 'Gosta de cantar?',
+  familiaOutraDoutrina: 'Familia em outra doutrina nao catolica?',
+  quemConvidouEac: 'Quem te convidou para o EAC',
+  paroquia: 'Qual paroquia pertence',
+  motivoEncontro: 'Por que quer fazer o encontro?',
+  valorContribuicao: 'Valor da contribuicao',
+  visitadoTioVisitacao: 'Visitado pelo tio da visitacao',
+  desistiu: 'Desistiu?',
+  restricaoMedicamentosa: 'Restricao medicamentosa',
+  tipoRestricaoMedicamentosa: 'Se sim, qual restricao medicamentosa?',
+};
+
+const READ_FIELDS = [
+  'nome',
+  'email',
+  'status',
+  'dataCadastro',
+  'telefone',
+  'localidade',
+  'dataNascimento',
+  'idade',
+  'sexo',
+  'tamanhoCamisa',
+  'alergico',
+  'tipoAlergia',
+  'nomeSocial',
+  'celular',
+  'nomePai',
+  'nomeMae',
+  'enderecoCompleto',
+  'cidade',
+  'estado',
+  'escola',
+  'turno',
+  'serie',
+  'grau',
+  'jaParticipouEncontro',
+  'qualEncontroAnterior',
+  'paisFizeramECC',
+  'batizado',
+  'primeiraComunhao',
+  'crismado',
+  'tocaInstrumento',
+  'gostaCantar',
+  'familiaOutraDoutrina',
+  'quemConvidouEac',
+  'paroquia',
+  'motivoEncontro',
+  'valorContribuicao',
+  'visitadoTioVisitacao',
+  'desistiu',
+  'restricaoMedicamentosa',
+  'tipoRestricaoMedicamentosa',
+];
+
+const UPDATE_FIELDS = [
+  'nome',
+  'email',
+  'status',
+  'telefone',
+  'localidade',
+  'dataNascimento',
+  'idade',
+  'tamanhoCamisa',
+  'alergico',
+  'tipoAlergia',
+  'nomeSocial',
+  'celular',
+  'nomePai',
+  'nomeMae',
+  'enderecoCompleto',
+  'cidade',
+  'estado',
+  'escola',
+  'turno',
+  'serie',
+  'grau',
+  'jaParticipouEncontro',
+  'qualEncontroAnterior',
+  'paisFizeramECC',
+  'batizado',
+  'primeiraComunhao',
+  'crismado',
+  'tocaInstrumento',
+  'gostaCantar',
+  'familiaOutraDoutrina',
+  'quemConvidouEac',
+  'paroquia',
+  'motivoEncontro',
+  'valorContribuicao',
+  'visitadoTioVisitacao',
+  'desistiu',
+  'restricaoMedicamentosa',
+  'tipoRestricaoMedicamentosa',
+];
 
 function getSheet() {
   const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -65,6 +194,145 @@ function sanitizeYesNo(value) {
   const normalized = String(value || '').trim().toUpperCase();
   if (normalized === 'SIM' || normalized === 'NAO') return normalized;
   return '';
+}
+
+function getExpectedHeadersByColumn_() {
+  const maxIndex = Object.keys(COL).reduce(function (acc, key) {
+    return Math.max(acc, COL[key]);
+  }, 0);
+
+  const headers = new Array(maxIndex + 1).fill('');
+  Object.keys(COL).forEach(function (key) {
+    headers[COL[key]] = HEADER_BY_KEY[key] || '';
+  });
+  return headers;
+}
+
+function ensureInscricoesHeaders() {
+  const sheet = getSheet();
+  const expected = getExpectedHeadersByColumn_();
+  const requiredColumns = expected.length;
+  const currentMaxColumns = sheet.getMaxColumns();
+
+  if (currentMaxColumns < requiredColumns) {
+    sheet.insertColumnsAfter(currentMaxColumns, requiredColumns - currentMaxColumns);
+  }
+
+  const current = sheet.getRange(1, 1, 1, requiredColumns).getValues()[0];
+  const changes = [];
+
+  expected.forEach(function (expectedHeader, idx) {
+    if (!expectedHeader) return;
+    const previous = String(current[idx] || '').trim();
+    if (previous !== expectedHeader) {
+      changes.push({
+        coluna: toColumnLetter(idx + 1),
+        de: previous,
+        para: expectedHeader,
+      });
+      current[idx] = expectedHeader;
+    }
+  });
+
+  if (changes.length > 0) {
+    sheet.getRange(1, 1, 1, requiredColumns).setValues([current]);
+  }
+
+  Logger.log(JSON.stringify({
+    success: true,
+    sheet: SHEET_NAME,
+    requiredColumns: requiredColumns,
+    changedHeaders: changes.length,
+    changes: changes,
+  }));
+
+  return {
+    success: true,
+    sheet: SHEET_NAME,
+    requiredColumns: requiredColumns,
+    changedHeaders: changes.length,
+    changes: changes,
+  };
+}
+
+function validateOperationalSetup() {
+  const sheet = getSheet();
+  const expected = getExpectedHeadersByColumn_();
+  const requiredColumns = expected.length;
+  const maxColumns = sheet.getMaxColumns();
+  const readableColumns = Math.max(Math.min(maxColumns, requiredColumns), 1);
+  const headers = sheet.getRange(1, 1, 1, readableColumns).getValues()[0];
+
+  const fieldKeys = Object.keys(COL);
+  const duplicateCols = [];
+  const seen = {};
+  fieldKeys.forEach(function (key) {
+    const idx = COL[key];
+    if (seen[idx] !== undefined) {
+      duplicateCols.push({ colunaIndice: idx, campoA: seen[idx], campoB: key });
+      return;
+    }
+    seen[idx] = key;
+  });
+
+  const missingHeaderMapping = fieldKeys.filter(function (key) {
+    return !HEADER_BY_KEY[key];
+  });
+
+  const missingColMappingForRead = READ_FIELDS.filter(function (key) {
+    return COL[key] === undefined;
+  });
+
+  const missingColMappingForUpdate = UPDATE_FIELDS.filter(function (key) {
+    return COL[key] === undefined;
+  });
+
+  const headerMismatch = [];
+  expected.forEach(function (expectedHeader, idx) {
+    if (!expectedHeader) return;
+    const currentHeader = idx < headers.length ? String(headers[idx] || '').trim() : '';
+    if (currentHeader !== expectedHeader) {
+      headerMismatch.push({
+        coluna: toColumnLetter(idx + 1),
+        esperado: expectedHeader,
+        atual: currentHeader,
+      });
+    }
+  });
+
+  const result = {
+    success:
+      duplicateCols.length === 0 &&
+      missingHeaderMapping.length === 0 &&
+      missingColMappingForRead.length === 0 &&
+      missingColMappingForUpdate.length === 0 &&
+      maxColumns >= requiredColumns &&
+      headerMismatch.length === 0,
+    sheet: SHEET_NAME,
+    maxColumns: maxColumns,
+    requiredColumns: requiredColumns,
+    duplicateCols: duplicateCols,
+    missingHeaderMapping: missingHeaderMapping,
+    missingColMappingForRead: missingColMappingForRead,
+    missingColMappingForUpdate: missingColMappingForUpdate,
+    headerMismatch: headerMismatch,
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
+function setupAndValidateInscricoesSheet() {
+  const setup = ensureInscricoesHeaders();
+  const validation = validateOperationalSetup();
+
+  const result = {
+    setup: setup,
+    validation: validation,
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
 }
 
 function doGet(e) {
@@ -125,6 +393,8 @@ function doGet(e) {
           valorContribuicao: String(row[COL.valorContribuicao] || ''),
           visitadoTioVisitacao: sanitizeYesNo(row[COL.visitadoTioVisitacao]),
           desistiu: sanitizeYesNo(row[COL.desistiu]),
+          restricaoMedicamentosa: sanitizeYesNo(row[COL.restricaoMedicamentosa]),
+          tipoRestricaoMedicamentosa: String(row[COL.tipoRestricaoMedicamentosa] || ''),
         };
       })
       .filter(function (item) {
@@ -164,12 +434,28 @@ function doPost(e) {
     }
 
     const sheet = getSheet();
+    if (data.alergico !== undefined) {
+      data.alergico = sanitizeYesNo(data.alergico);
+    }
+
     const desistiuValue = sanitizeYesNo(data.desistiu);
     if (data.desistiu !== undefined) {
       data.desistiu = desistiuValue;
       if (desistiuValue === 'SIM') {
         data.status = 'Nao confirmado';
       }
+    }
+
+    if (data.restricaoMedicamentosa !== undefined) {
+      data.restricaoMedicamentosa = sanitizeYesNo(data.restricaoMedicamentosa);
+    }
+
+    if (data.alergico === 'SIM' && !String(data.tipoAlergia || '').trim()) {
+      return jsonResponse({ error: true, message: 'Preencha o detalhe da restricao alimentar.' });
+    }
+
+    if (data.restricaoMedicamentosa === 'SIM' && !String(data.tipoRestricaoMedicamentosa || '').trim()) {
+      return jsonResponse({ error: true, message: 'Preencha o detalhe da restricao medicamentosa.' });
     }
 
     const updatableCols = {
@@ -209,6 +495,8 @@ function doPost(e) {
       valorContribuicao: COL.valorContribuicao,
       visitadoTioVisitacao: COL.visitadoTioVisitacao,
       desistiu: COL.desistiu,
+      restricaoMedicamentosa: COL.restricaoMedicamentosa,
+      tipoRestricaoMedicamentosa: COL.tipoRestricaoMedicamentosa,
     };
 
     Object.keys(updatableCols).forEach(function (key) {

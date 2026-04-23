@@ -83,7 +83,12 @@ export function ViewDetails({ inscricao }: ViewDetailsProps) {
           <Field label="Gosta de cantar?" value={inscricao.gostaCantar} />
           <Field label="Familia em outra doutrina nao catolica?" value={inscricao.familiaOutraDoutrina} />
           <Field label="Restricao alimentar" value={inscricao.alergico} />
-          <Field label="Se sim, qual restricao?" value={inscricao.tipoAlergia} />
+          <Field label="Se sim, qual restricao alimentar?" value={inscricao.tipoAlergia} />
+          <Field label="Restricao medicamentosa" value={inscricao.restricaoMedicamentosa} />
+          <Field
+            label="Se sim, qual restricao medicamentosa?"
+            value={inscricao.tipoRestricaoMedicamentosa}
+          />
         </div>
       </div>
     </div>

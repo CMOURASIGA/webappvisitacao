@@ -17,6 +17,8 @@ export interface Inscricao {
   tamanhoCamisa: ShirtSize | '';
   alergico: AllergyValue | '';
   tipoAlergia: string;
+  restricaoMedicamentosa: YesNoValue | '';
+  tipoRestricaoMedicamentosa: string;
   nomeSocial: string;
   celular: string;
   nomePai: string;
@@ -56,6 +58,8 @@ export interface UpdateInscricaoData {
   tamanhoCamisa: ShirtSize | '';
   alergico: AllergyValue | '';
   tipoAlergia: string;
+  restricaoMedicamentosa: YesNoValue | '';
+  tipoRestricaoMedicamentosa: string;
   nomeSocial: string;
   celular: string;
   nomePai: string;

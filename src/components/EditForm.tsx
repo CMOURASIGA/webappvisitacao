@@ -91,6 +91,8 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     tamanhoCamisa: inscricao.tamanhoCamisa || '',
     alergico: inscricao.alergico || '',
     tipoAlergia: inscricao.tipoAlergia || '',
+    restricaoMedicamentosa: inscricao.restricaoMedicamentosa || '',
+    tipoRestricaoMedicamentosa: inscricao.tipoRestricaoMedicamentosa || '',
     nomeSocial: inscricao.nomeSocial || '',
     celular: inscricao.celular || '',
     nomePai: inscricao.nomePai || '',
@@ -145,6 +147,11 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
       return;
     }
 
+    if (form.restricaoMedicamentosa === 'SIM' && !String(form.tipoRestricaoMedicamentosa || '').trim()) {
+      setError('Preencha o tipo de restricao medicamentosa quando marcar SIM.');
+      return;
+    }
+
     if (form.jaParticipouEncontro === 'SIM' && !String(form.qualEncontroAnterior || '').trim()) {
       setError('Preencha o campo Qual quando marcar que ja participou de outro encontro.');
       return;
@@ -157,6 +164,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           ...form,
           status: form.desistiu === 'SIM' ? 'Nao confirmado' : form.status,
           tipoAlergia: String(form.tipoAlergia || '').trim(),
+          tipoRestricaoMedicamentosa: String(form.tipoRestricaoMedicamentosa || '').trim(),
           nomeSocial: String(form.nomeSocial || '').trim(),
           qualEncontroAnterior: String(form.qualEncontroAnterior || '').trim(),
           quemConvidouEac: String(form.quemConvidouEac || '').trim(),
@@ -562,11 +570,29 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <Label>Se sim, qual?</Label>
+            <Label>Se sim, qual restricao alimentar?</Label>
             <input
               type="text"
               value={form.tipoAlergia}
               onChange={(e) => updateField('tipoAlergia', e.target.value)}
+              className="h-11 w-full rounded-lg border border-slate-300 px-3"
+            />
+          </div>
+
+          <div>
+            <Label>Restricao medicamentosa</Label>
+            <YesNoSelect
+              value={form.restricaoMedicamentosa}
+              onChange={(next) => updateField('restricaoMedicamentosa', next)}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <Label>Se sim, qual restricao medicamentosa?</Label>
+            <input
+              type="text"
+              value={form.tipoRestricaoMedicamentosa}
+              onChange={(e) => updateField('tipoRestricaoMedicamentosa', e.target.value)}
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             />
           </div>
