@@ -22,7 +22,7 @@ function getBaseUrl(): string {
 
   if (!selectedUrl) {
     throw new Error(
-      'URL da API nao configurada. Defina VITE_APPS_SCRIPT_URL_LOCAL (.env.local) para dev e VITE_APPS_SCRIPT_URL para producao.',
+      'URL da API não configurada. Defina VITE_APPS_SCRIPT_URL_LOCAL (.env.local) para dev e VITE_APPS_SCRIPT_URL para produção.',
     );
   }
 
@@ -90,7 +90,7 @@ async function parseJsonResponse(response: Response): Promise<unknown> {
     return JSON.parse(text) as unknown;
   } catch {
     const preview = text.slice(0, 180).replace(/\s+/g, ' ');
-    throw new Error(`Resposta nao-JSON da API. Verifique permissao/URL do Apps Script. Trecho: ${preview}`);
+    throw new Error(`Resposta não JSON da API. Verifique permissão/URL do Apps Script. Trecho: ${preview}`);
   }
 }
 
@@ -109,7 +109,7 @@ export async function readInscricoes(q = ''): Promise<Inscricao[]> {
 
   const payload = await parseJsonResponse(response);
   if (!Array.isArray(payload)) {
-    throw new Error('Resposta invalida da API.');
+    throw new Error('Resposta inválida da API.');
   }
 
   return payload

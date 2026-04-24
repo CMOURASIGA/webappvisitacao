@@ -50,11 +50,11 @@ function isIncomplete(inscricao: Inscricao): boolean {
 }
 
 function getAgeLabel(idade: string): string {
-  return idade ? `${idade} anos` : 'Idade nao informada';
+  return idade ? `${idade} anos` : 'Idade não informada';
 }
 
 function formatDateBR(value: string): string {
-  if (!value) return 'Data nao informada';
+  if (!value) return 'Data não informada';
   const text = String(value).trim();
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text;
   const isoMatch = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -67,13 +67,18 @@ function formatDateBR(value: string): string {
   return `${day}/${month}/${year}`;
 }
 
+function formatStatusLabel(status: string): string {
+  if (status === 'Nao confirmado') return 'Não confirmado';
+  return status || 'Status não informado';
+}
+
 export function Card({ inscricao, onView, onEdit }: CardProps) {
   const statusUI = STATUS_CLASSES[inscricao.status] ?? STATUS_CLASSES.Pendente;
   const incomplete = isIncomplete(inscricao);
-  const nome = inscricao.nome || 'Nome nao informado';
-  const email = inscricao.email || 'E-mail nao informado';
-  const telefone = inscricao.telefone || 'Telefone nao informado';
-  const bairro = inscricao.localidade || 'Bairro nao informado';
+  const nome = inscricao.nome || 'Nome não informado';
+  const email = inscricao.email || 'E-mail não informado';
+  const telefone = inscricao.telefone || 'Telefone não informado';
+  const bairro = inscricao.localidade || 'Bairro não informado';
   const dataCadastro = formatDateBR(inscricao.dataCadastro || '');
 
   return (
@@ -94,7 +99,7 @@ export function Card({ inscricao, onView, onEdit }: CardProps) {
           </div>
 
           <span className={cn('shrink-0 rounded-full px-3 py-1 text-xs font-semibold', statusUI.badge)}>
-            {inscricao.status || 'Status nao informado'}
+            {formatStatusLabel(inscricao.status)}
           </span>
         </header>
 

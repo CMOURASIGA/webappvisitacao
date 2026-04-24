@@ -14,7 +14,7 @@ export function useInscricoes() {
       const data = await readInscricoes();
       setInscricoes(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Nao foi possivel carregar as inscricoes.';
+      const message = err instanceof Error ? err.message : 'Não foi possível carregar as inscrições.';
       setError(message);
     } finally {
       setIsLoading(false);

@@ -24,7 +24,7 @@ export function StatusBar({ inscricoes }: StatusBarProps) {
       </span>
       <span className="inline-flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-slate-500" />
-        Nao confirmados: {notConfirmed}
+        Não confirmados: {notConfirmed}
       </span>
       <span className="inline-flex items-center gap-2">
         <span className="h-2.5 w-2.5 rounded-full bg-[var(--color-pending)]" />

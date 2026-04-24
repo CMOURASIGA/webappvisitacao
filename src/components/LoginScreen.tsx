@@ -15,7 +15,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
 
     const success = onLogin(usuario, senha);
     if (!success) {
-      setError('Credenciais invalidas. Use o formato carroXX e a senha informada.');
+      setError('Credenciais inválidas. Use o formato carroXX e a senha informada.');
       return;
     }
 
@@ -35,7 +35,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             />
             <div>
               <p className="text-xs opacity-80">Sistema</p>
-              <h1 className="text-sm font-semibold leading-tight">Confirmacao Visitacao Novos adolescentes</h1>
+              <h1 className="text-sm font-semibold leading-tight">Confirmação Visitação Novos adolescentes</h1>
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <label className="block space-y-1.5">
-              <span className="text-xs font-semibold text-slate-700">Usuario</span>
+              <span className="text-xs font-semibold text-slate-700">Usuário</span>
               <div className="relative">
                 <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input

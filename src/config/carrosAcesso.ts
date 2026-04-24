@@ -15,7 +15,7 @@ export const carrosAcesso: CarroAcesso[] = Array.from({ length: TOTAL_CARROS }, 
     numero,
     usuario: `carro${sufixo}`,
     senha: 'car123456',
-    responsavel: `Responsavel carro ${sufixo}`,
+    responsavel: `Responsável carro ${sufixo}`,
   };
 });
 

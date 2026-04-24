@@ -126,7 +126,7 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
             <div className="min-w-0 flex items-center gap-3">
               <img src="https://i.imgur.com/c5XQ7TW.jpeg" alt="Logo EAC" className="h-10 w-auto rounded" referrerPolicy="no-referrer" />
               <div className="min-w-0">
-                <h1 className="truncate text-lg font-bold text-[var(--color-brand-dark)]">Confirmacao Visitacao Novos adolescentes</h1>
+                <h1 className="truncate text-lg font-bold text-[var(--color-brand-dark)]">Confirmação Visitação Novos adolescentes</h1>
                 <p className="text-xs text-slate-500">Carro {String(sessao.numero).padStart(2, '0')} · {sessao.responsavel}</p>
               </div>
             </div>
@@ -210,7 +210,7 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
         )}
       </main>
 
-      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title="Detalhes da inscricao">
+      <Modal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} title="Detalhes da inscrição">
         {selectedInscricao && <ViewDetails inscricao={selectedInscricao} />}
       </Modal>
 

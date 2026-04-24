@@ -74,7 +74,7 @@ function YesNoSelect({
     >
       <option value="">Selecione</option>
       <option value="SIM">SIM</option>
-      <option value="NAO">NAO</option>
+      <option value="NAO">NÃO</option>
     </select>
   );
 }
@@ -143,17 +143,17 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     setError('');
 
     if (form.alergico === 'SIM' && !String(form.tipoAlergia || '').trim()) {
-      setError('Preencha o tipo de restricao alimentar quando marcar SIM.');
+      setError('Preencha o tipo de restrição alimentar quando marcar SIM.');
       return;
     }
 
     if (form.restricaoMedicamentosa === 'SIM' && !String(form.tipoRestricaoMedicamentosa || '').trim()) {
-      setError('Preencha o tipo de restricao medicamentosa quando marcar SIM.');
+      setError('Preencha o tipo de restrição medicamentosa quando marcar SIM.');
       return;
     }
 
     if (form.jaParticipouEncontro === 'SIM' && !String(form.qualEncontroAnterior || '').trim()) {
-      setError('Preencha o campo Qual quando marcar que ja participou de outro encontro.');
+      setError('Preencha o campo Qual quando marcar que já participou de outro encontro.');
       return;
     }
 
@@ -206,7 +206,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               : 'text-slate-600'
           }`}
         >
-          Demais informacoes
+          Demais informações
         </button>
       </div>
 
@@ -235,7 +235,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>E-mail do responsavel</Label>
+            <Label>E-mail do responsável</Label>
             <input
               type="text"
               value={form.email}
@@ -255,7 +255,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               <option value="">Selecione</option>
               <option value="Ativo">Ativo</option>
               <option value="Confirmado">Confirmado</option>
-              <option value="Nao confirmado">Nao confirmado</option>
+              <option value="Nao confirmado">Não confirmado</option>
               <option value="Pendente">Pendente</option>
               <option value="Cancelado">Cancelado</option>
             </select>
@@ -307,7 +307,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <Label>Endereco completo</Label>
+            <Label>Endereço completo</Label>
             <textarea
               value={form.enderecoCompleto}
               onChange={(e) => updateField('enderecoCompleto', e.target.value)}
@@ -356,7 +356,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Nome da mae</Label>
+            <Label>Nome da mãe</Label>
             <input
               type="text"
               value={form.nomeMae}
@@ -414,7 +414,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Serie</Label>
+            <Label>Série</Label>
             <input
               type="text"
               value={form.serie}
@@ -444,7 +444,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Qual paroquia pertence</Label>
+            <Label>Qual paróquia pertence</Label>
             <input
               type="text"
               value={form.paroquia}
@@ -471,7 +471,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Valor da contribuicao</Label>
+            <Label>Valor da contribuição</Label>
             <input
               type="text"
               value={form.valorContribuicao}
@@ -481,7 +481,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Visitado pelo tio da visitacao</Label>
+            <Label>Visitado pelo tio da visitação</Label>
             <YesNoSelect
               value={form.visitadoTioVisitacao}
               onChange={(next) => updateField('visitadoTioVisitacao', next)}
@@ -500,10 +500,10 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
       </div>
 
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">Perguntas com opcoes</h3>
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">Perguntas com opções</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <Label>Ja participou de algum encontro?</Label>
+            <Label>Já participou de algum encontro?</Label>
             <YesNoSelect
               value={form.jaParticipouEncontro}
               onChange={(next) => updateField('jaParticipouEncontro', next)}
@@ -521,17 +521,17 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Seus pais ja fizeram ECC?</Label>
+            <Label>Seus pais já fizeram ECC?</Label>
             <YesNoSelect value={form.paisFizeramECC} onChange={(next) => updateField('paisFizeramECC', next)} />
           </div>
 
           <div>
-            <Label>E batizado?</Label>
+            <Label>É batizado?</Label>
             <YesNoSelect value={form.batizado} onChange={(next) => updateField('batizado', next)} />
           </div>
 
           <div>
-            <Label>Fez a Primeira Comunhao?</Label>
+            <Label>Fez a Primeira Comunhão?</Label>
             <YesNoSelect
               value={form.primeiraComunhao}
               onChange={(next) => updateField('primeiraComunhao', next)}
@@ -539,7 +539,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>E crismado?</Label>
+            <Label>É crismado?</Label>
             <YesNoSelect value={form.crismado} onChange={(next) => updateField('crismado', next)} />
           </div>
 
@@ -557,7 +557,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Alguem da familia pertence a outra doutrina nao catolica?</Label>
+            <Label>Alguém da família pertence a outra doutrina não católica?</Label>
             <YesNoSelect
               value={form.familiaOutraDoutrina}
               onChange={(next) => updateField('familiaOutraDoutrina', next)}
@@ -565,12 +565,12 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Restricao alimentar</Label>
+            <Label>Restrição alimentar</Label>
             <YesNoSelect value={form.alergico} onChange={(next) => updateField('alergico', next)} />
           </div>
 
           <div className="sm:col-span-2">
-            <Label>Se sim, qual restricao alimentar?</Label>
+            <Label>Se sim, qual restrição alimentar?</Label>
             <input
               type="text"
               value={form.tipoAlergia}
@@ -580,7 +580,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div>
-            <Label>Restricao medicamentosa</Label>
+            <Label>Restrição medicamentosa</Label>
             <YesNoSelect
               value={form.restricaoMedicamentosa}
               onChange={(next) => updateField('restricaoMedicamentosa', next)}
@@ -588,7 +588,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <Label>Se sim, qual restricao medicamentosa?</Label>
+            <Label>Se sim, qual restrição medicamentosa?</Label>
             <input
               type="text"
               value={form.tipoRestricaoMedicamentosa}
@@ -609,7 +609,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
             onChange={(e) => setNotifyResponsavel(e.target.checked)}
             className="h-4 w-4 rounded border-slate-300"
           />
-          Deseja enviar e-mail ao responsavel apos salvar?
+          Deseja enviar e-mail ao responsável após salvar?
         </label>
       </div>
 
