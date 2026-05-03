@@ -8,6 +8,7 @@ import { useInscricoes } from './hooks/useInscricoes';
 function getFilterLabel(filter: DashboardFilter): string {
   if (filter === 'confirmed') return 'registros confirmados';
   if (filter === 'notConfirmed') return 'registros nao confirmados';
+  if (filter === 'pending') return 'registros pendentes';
   if (filter === 'healthPending') return 'registros com pendencia de saude';
   if (filter === 'missingShirt') return 'registros sem tamanho de camisa';
   return 'todos os registros';
@@ -16,6 +17,7 @@ function getFilterLabel(filter: DashboardFilter): string {
 function filterInscricoes(inscricoes: Inscricao[], filter: DashboardFilter): Inscricao[] {
   if (filter === 'confirmed') return inscricoes.filter((item) => item.status === 'Confirmado');
   if (filter === 'notConfirmed') return inscricoes.filter((item) => item.status === 'Nao confirmado');
+  if (filter === 'pending') return inscricoes.filter((item) => item.status === 'Pendente');
   if (filter === 'healthPending') return inscricoes.filter(hasHealthPending);
   if (filter === 'missingShirt') return inscricoes.filter(hasMissingShirt);
   return inscricoes;

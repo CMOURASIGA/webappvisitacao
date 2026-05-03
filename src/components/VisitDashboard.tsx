@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { AlertTriangle, CheckCircle2, ClipboardList, Shirt, Stethoscope } from 'lucide-react';
 import { Inscricao } from '../types';
 
-export type DashboardFilter = 'all' | 'confirmed' | 'notConfirmed' | 'healthPending' | 'missingShirt';
+export type DashboardFilter = 'all' | 'confirmed' | 'notConfirmed' | 'pending' | 'healthPending' | 'missingShirt';
 
 interface VisitDashboardProps {
   inscricoes: Inscricao[];
@@ -63,6 +63,7 @@ export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: Vis
   const metrics = useMemo(() => {
     const confirmed = inscricoes.filter((item) => item.status === 'Confirmado');
     const notConfirmed = inscricoes.filter((item) => item.status === 'Nao confirmado');
+    const pending = inscricoes.filter((item) => item.status === 'Pendente');
     const healthPending = inscricoes.filter(hasHealthPending);
     const missingShirt = inscricoes.filter(hasMissingShirt);
     const attention = inscricoes.filter((item) => hasHealthPending(item) || hasMissingShirt(item));
@@ -70,6 +71,7 @@ export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: Vis
     return {
       confirmed,
       notConfirmed,
+      pending,
       healthPending,
       missingShirt,
       attention,
@@ -102,6 +104,14 @@ export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: Vis
           accentClass="bg-amber-100"
           isActive={activeFilter === 'notConfirmed'}
           onClick={() => onFilterChange('notConfirmed')}
+        />
+        <StatCard
+          icon={<AlertTriangle size={18} className="text-orange-700" />}
+          label="Pendentes"
+          value={metrics.pending.length}
+          accentClass="bg-orange-100"
+          isActive={activeFilter === 'pending'}
+          onClick={() => onFilterChange('pending')}
         />
         <StatCard
           icon={<Stethoscope size={18} className="text-rose-700" />}
