@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, Search, X } from 'lucide-react';
 import { StatusBar } from './components/StatusBar';
 import { DashboardFilter, hasHealthPending, hasMissingShirt, VisitDashboard } from './components/VisitDashboard';
 import { Inscricao } from './types';
@@ -31,6 +31,7 @@ function getHealthLabel(item: Inscricao): string {
 export default function DashboardPage() {
   const { inscricoes, isLoading, error, refresh } = useInscricoes();
   const [activeFilter, setActiveFilter] = useState<DashboardFilter>('all');
+  const [selectedInscricao, setSelectedInscricao] = useState<Inscricao | null>(null);
   const filteredInscricoes = useMemo(
     () => filterInscricoes(inscricoes, activeFilter),
     [inscricoes, activeFilter],
@@ -88,9 +89,20 @@ export default function DashboardPage() {
                     <article key={item.rowIndex} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-semibold text-slate-900">#{item.rowIndex} - {item.nome || 'Nome nao informado'}</p>
-                        <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-800">
-                          {item.status || 'Nao informado'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-800">
+                            {item.status || 'Nao informado'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedInscricao(item)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                            aria-label={`Ver detalhes do registro ${item.nome || item.rowIndex}`}
+                            title="Ver detalhes"
+                          >
+                            <Search size={15} />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
@@ -120,6 +132,61 @@ export default function DashboardPage() {
           </>
         )}
       </main>
+
+      {selectedInscricao && (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-black/40"
+            onClick={() => setSelectedInscricao(null)}
+            aria-label="Fechar detalhes"
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-xl overflow-y-auto border-l border-slate-200 bg-white shadow-2xl">
+            <div className="sticky top-0 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">Detalhes do registro</h2>
+                <p className="text-xs text-slate-500">#{selectedInscricao.rowIndex} - {selectedInscricao.nome || 'Nome nao informado'}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedInscricao(null)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 text-slate-700 hover:bg-slate-100"
+                aria-label="Fechar drawer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-4 p-4 text-sm">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <p><strong>Status:</strong> {selectedInscricao.status || 'Nao informado'}</p>
+                <p><strong>Idade:</strong> {selectedInscricao.idade || 'Nao informado'}</p>
+                <p><strong>Telefone:</strong> {selectedInscricao.telefone || 'Nao informado'}</p>
+                <p><strong>Celular:</strong> {selectedInscricao.celular || 'Nao informado'}</p>
+                <p><strong>E-mail:</strong> {selectedInscricao.email || 'Nao informado'}</p>
+                <p><strong>Camisa:</strong> {selectedInscricao.tamanhoCamisa || 'Nao informado'}</p>
+                <p><strong>Saude:</strong> {getHealthLabel(selectedInscricao)}</p>
+                <p><strong>Bairro:</strong> {selectedInscricao.localidade || 'Nao informado'}</p>
+                <p><strong>Cidade:</strong> {selectedInscricao.cidade || 'Nao informado'}</p>
+                <p><strong>Estado:</strong> {selectedInscricao.estado || 'Nao informado'}</p>
+              </div>
+
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Endereco completo</p>
+                <p>{selectedInscricao.enderecoCompleto || 'Nao informado'}</p>
+              </div>
+
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Informacoes de saude</p>
+                <p><strong>Restricao alimentar:</strong> {selectedInscricao.alergico || 'Nao informado'}</p>
+                <p><strong>Tipo:</strong> {selectedInscricao.tipoAlergia || 'Nao informado'}</p>
+                <p><strong>Restricao medicamentosa:</strong> {selectedInscricao.restricaoMedicamentosa || 'Nao informado'}</p>
+                <p><strong>Tipo:</strong> {selectedInscricao.tipoRestricaoMedicamentosa || 'Nao informado'}</p>
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
     </div>
   );
 }
