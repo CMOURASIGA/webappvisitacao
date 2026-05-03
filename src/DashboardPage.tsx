@@ -41,9 +41,17 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[var(--page-bg)] pb-10 text-slate-800">
       <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
-          <div>
+          <div className="flex items-center gap-3">
+            <img
+              src="https://i.imgur.com/c5XQ7TW.jpeg"
+              alt="Logo EAC"
+              className="h-12 w-auto rounded"
+              referrerPolicy="no-referrer"
+            />
+            <div>
             <h1 className="text-xl font-bold text-[var(--color-brand-dark)]">Dashboard de Visitas</h1>
             <p className="text-sm text-slate-500">Acompanhamento geral dos registros visitados</p>
+            </div>
           </div>
         </div>
       </header>
