@@ -53,6 +53,7 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
 
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'TODOS' | 'Ativo' | 'Confirmado' | 'Nao confirmado' | 'Pendente' | 'Cancelado'>('TODOS');
   const [selectedInscricao, setSelectedInscricao] = useState<Inscricao | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -62,6 +63,8 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
     const query = normalizeText(searchTerm);
 
     const filtered = inscricoes.filter((item) => {
+      const matchesStatus = statusFilter === 'TODOS' || item.status === statusFilter;
+      if (!matchesStatus) return false;
       if (!query) return true;
       const fields = [item.nome, item.email, item.telefone].map(normalizeText);
       return fields.some((field) => field.includes(query));
@@ -70,7 +73,7 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
     return [...filtered].sort((a, b) =>
       String(a.nome || '').localeCompare(String(b.nome || ''), 'pt-BR', { sensitivity: 'base' }),
     );
-  }, [inscricoes, searchTerm]);
+  }, [inscricoes, searchTerm, statusFilter]);
 
   function showToast(message: string, type: 'success' | 'error') {
     setToast({ message, type });
@@ -142,6 +145,21 @@ function PainelVisitas({ sessao, onLogout }: { sessao: SessaoCarro; onLogout: ()
                   onKeyDown={handleSearchKeyDown}
                   className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-dark)]/20"
                 />
+              </div>
+
+              <div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-dark)]/20"
+                >
+                  <option value="TODOS">Todos os status</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Confirmado">Confirmado</option>
+                  <option value="Nao confirmado">Nao confirmado</option>
+                  <option value="Pendente">Pendente</option>
+                  <option value="Cancelado">Cancelado</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center sm:justify-end">

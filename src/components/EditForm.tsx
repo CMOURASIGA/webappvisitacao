@@ -83,7 +83,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
   const [form, setForm] = useState<UpdateInscricaoData>({
     nome: inscricao.nome || '',
     email: inscricao.email || '',
-    status: inscricao.status || '',
+    status: '',
     localidade: inscricao.localidade || '',
     telefone: inscricao.telefone || '',
     dataNascimento: formatDateBR(inscricao.dataNascimento || ''),
@@ -141,6 +141,16 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError('');
+
+    if (!String(form.status || '').trim()) {
+      setError('Selecione um status para continuar.');
+      return;
+    }
+
+    if (form.status === 'Ativo') {
+      setError('O status Ativo nao e permitido na edicao. Escolha outra opcao.');
+      return;
+    }
 
     if (form.alergico === 'SIM' && !String(form.tipoAlergia || '').trim()) {
       setError('Preencha o tipo de restrição alimentar quando marcar SIM.');
@@ -253,8 +263,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
               className="h-11 w-full rounded-lg border border-slate-300 px-3"
             >
               <option value="">Selecione</option>
-              <option value="Ativo">Ativo</option>
-              <option value="Confirmado">Confirmado</option>
+                            <option value="Confirmado">Confirmado</option>
               <option value="Nao confirmado">Não confirmado</option>
               <option value="Pendente">Pendente</option>
               <option value="Cancelado">Cancelado</option>
@@ -639,3 +648,7 @@ export function EditForm({ inscricao, onSubmit, onCancel }: EditFormProps) {
     </form>
   );
 }
+
+
+
+

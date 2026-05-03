@@ -2,35 +2,27 @@ import React, { useMemo } from 'react';
 import { AlertTriangle, CheckCircle2, ClipboardList, Shirt, Stethoscope } from 'lucide-react';
 import { Inscricao } from '../types';
 
+export type DashboardFilter = 'all' | 'confirmed' | 'notConfirmed' | 'healthPending' | 'missingShirt';
+
 interface VisitDashboardProps {
   inscricoes: Inscricao[];
+  activeFilter: DashboardFilter;
+  onFilterChange: (filter: DashboardFilter) => void;
 }
 
 function isFilled(value: unknown): boolean {
   return String(value ?? '').trim().length > 0;
 }
 
-function hasHealthPending(item: Inscricao): boolean {
+export function hasHealthPending(item: Inscricao): boolean {
   if (!isFilled(item.alergico) || !isFilled(item.restricaoMedicamentosa)) return true;
   if (item.alergico === 'SIM' && !isFilled(item.tipoAlergia)) return true;
   if (item.restricaoMedicamentosa === 'SIM' && !isFilled(item.tipoRestricaoMedicamentosa)) return true;
   return false;
 }
 
-function hasFollowUpEdition(item: Inscricao): boolean {
-  const followUpFields = [
-    item.tamanhoCamisa,
-    item.alergico,
-    item.tipoAlergia,
-    item.restricaoMedicamentosa,
-    item.tipoRestricaoMedicamentosa,
-    item.visitadoTioVisitacao,
-    item.valorContribuicao,
-    item.desistiu,
-    item.motivoEncontro,
-  ];
-
-  return followUpFields.some(isFilled);
+export function hasMissingShirt(item: Inscricao): boolean {
+  return !isFilled(item.tamanhoCamisa);
 }
 
 function StatCard({
@@ -38,14 +30,24 @@ function StatCard({
   label,
   value,
   accentClass,
+  isActive,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
   accentClass: string;
+  isActive: boolean;
+  onClick: () => void;
 }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-xl border bg-white p-4 text-left shadow-sm transition ${
+        isActive ? 'border-[var(--color-brand-dark)] ring-2 ring-[var(--color-brand-dark)]/20' : 'border-slate-200 hover:border-slate-300'
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
@@ -53,21 +55,21 @@ function StatCard({
         </div>
         <div className={`grid h-10 w-10 place-items-center rounded-lg ${accentClass}`}>{icon}</div>
       </div>
-    </article>
+    </button>
   );
 }
 
-export function VisitDashboard({ inscricoes }: VisitDashboardProps) {
+export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: VisitDashboardProps) {
   const metrics = useMemo(() => {
-    const edited = inscricoes.filter(hasFollowUpEdition);
-    const notEdited = inscricoes.filter((item) => !hasFollowUpEdition(item));
+    const confirmed = inscricoes.filter((item) => item.status === 'Confirmado');
+    const notConfirmed = inscricoes.filter((item) => item.status === 'Nao confirmado');
     const healthPending = inscricoes.filter(hasHealthPending);
-    const missingShirt = inscricoes.filter((item) => !isFilled(item.tamanhoCamisa));
-    const attention = inscricoes.filter((item) => hasHealthPending(item) || !isFilled(item.tamanhoCamisa));
+    const missingShirt = inscricoes.filter(hasMissingShirt);
+    const attention = inscricoes.filter((item) => hasHealthPending(item) || hasMissingShirt(item));
 
     return {
-      edited,
-      notEdited,
+      confirmed,
+      notConfirmed,
       healthPending,
       missingShirt,
       attention,
@@ -82,30 +84,40 @@ export function VisitDashboard({ inscricoes }: VisitDashboardProps) {
           label="Total de registros"
           value={inscricoes.length}
           accentClass="bg-slate-100"
+          isActive={activeFilter === 'all'}
+          onClick={() => onFilterChange('all')}
         />
         <StatCard
           icon={<CheckCircle2 size={18} className="text-emerald-700" />}
-          label="Registros editados"
-          value={metrics.edited.length}
+          label="Registros confirmados"
+          value={metrics.confirmed.length}
           accentClass="bg-emerald-100"
+          isActive={activeFilter === 'confirmed'}
+          onClick={() => onFilterChange('confirmed')}
         />
         <StatCard
           icon={<AlertTriangle size={18} className="text-amber-700" />}
-          label="Sem edicao"
-          value={metrics.notEdited.length}
+          label="Nao confirmados"
+          value={metrics.notConfirmed.length}
           accentClass="bg-amber-100"
+          isActive={activeFilter === 'notConfirmed'}
+          onClick={() => onFilterChange('notConfirmed')}
         />
         <StatCard
           icon={<Stethoscope size={18} className="text-rose-700" />}
           label="Pendencia de saude"
           value={metrics.healthPending.length}
           accentClass="bg-rose-100"
+          isActive={activeFilter === 'healthPending'}
+          onClick={() => onFilterChange('healthPending')}
         />
         <StatCard
           icon={<Shirt size={18} className="text-indigo-700" />}
           label="Sem tamanho de camisa"
           value={metrics.missingShirt.length}
           accentClass="bg-indigo-100"
+          isActive={activeFilter === 'missingShirt'}
+          onClick={() => onFilterChange('missingShirt')}
         />
       </div>
 
