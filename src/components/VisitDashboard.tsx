@@ -99,7 +99,7 @@ export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: Vis
         />
         <StatCard
           icon={<CheckCircle2 size={18} className="text-cyan-700" />}
-          label="Aba confirmados"
+          label="Secretaria / Garcom"
           value={metrics.confirmed.length}
           accentClass="bg-cyan-100"
           isActive={activeFilter === 'confirmedVisit'}
