@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { AlertTriangle, CheckCircle2, ClipboardList, Shirt, Stethoscope } from 'lucide-react';
 import { Inscricao } from '../types';
 
-export type DashboardFilter = 'all' | 'confirmed' | 'notConfirmed' | 'pending' | 'healthPending' | 'missingShirt';
+export type DashboardFilter = 'all' | 'confirmed' | 'confirmedVisit' | 'notConfirmed' | 'pending' | 'healthPending' | 'missingShirt';
 
 interface VisitDashboardProps {
   inscricoes: Inscricao[];
@@ -96,6 +96,14 @@ export function VisitDashboard({ inscricoes, activeFilter, onFilterChange }: Vis
           accentClass="bg-emerald-100"
           isActive={activeFilter === 'confirmed'}
           onClick={() => onFilterChange('confirmed')}
+        />
+        <StatCard
+          icon={<CheckCircle2 size={18} className="text-cyan-700" />}
+          label="Aba confirmados"
+          value={metrics.confirmed.length}
+          accentClass="bg-cyan-100"
+          isActive={activeFilter === 'confirmedVisit'}
+          onClick={() => onFilterChange('confirmedVisit')}
         />
         <StatCard
           icon={<AlertTriangle size={18} className="text-amber-700" />}

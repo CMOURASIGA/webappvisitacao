@@ -7,6 +7,7 @@ import { useInscricoes } from './hooks/useInscricoes';
 
 function getFilterLabel(filter: DashboardFilter): string {
   if (filter === 'confirmed') return 'registros confirmados';
+  if (filter === 'confirmedVisit') return 'aba de confirmados (visitacao)';
   if (filter === 'notConfirmed') return 'registros nao confirmados';
   if (filter === 'pending') return 'registros pendentes';
   if (filter === 'healthPending') return 'registros com pendencia de saude';
@@ -16,11 +17,77 @@ function getFilterLabel(filter: DashboardFilter): string {
 
 function filterInscricoes(inscricoes: Inscricao[], filter: DashboardFilter): Inscricao[] {
   if (filter === 'confirmed') return inscricoes.filter((item) => item.status === 'Confirmado');
+  if (filter === 'confirmedVisit') return inscricoes.filter((item) => item.status === 'Confirmado');
   if (filter === 'notConfirmed') return inscricoes.filter((item) => item.status === 'Nao confirmado');
   if (filter === 'pending') return inscricoes.filter((item) => item.status === 'Pendente');
   if (filter === 'healthPending') return inscricoes.filter(hasHealthPending);
   if (filter === 'missingShirt') return inscricoes.filter(hasMissingShirt);
   return inscricoes;
+}
+
+function getValue(value: string): string {
+  return value?.trim() ? value : 'Nao informado';
+}
+
+function toCsvValue(value: string): string {
+  const normalized = String(value ?? '').replace(/\r?\n|\r/g, ' ').trim();
+  return `"${normalized.replace(/"/g, '""')}"`;
+}
+
+function exportConfirmedVisitCsv(items: Inscricao[]): void {
+  const headers = [
+    'Row',
+    'Nome (A)',
+    'Idade (P)',
+    'Alergia (V)',
+    'W - Tipo alergia',
+    'X - Nome social',
+    'Y - Celular',
+    'Z - Nome do pai',
+    'AA - Nome da mae',
+    'AV - Visitado',
+    'AX - Restricao medicamentosa',
+    'AY - Tipo restricao medicamentosa',
+    'O - Data nascimento',
+  ];
+
+  const lines = [
+    headers.map(toCsvValue).join(','),
+    ...items.map((item) =>
+      [
+        String(item.rowIndex),
+        item.nome,
+        item.idade,
+        item.alergico,
+        item.tipoAlergia,
+        item.nomeSocial,
+        item.celular,
+        item.nomePai,
+        item.nomeMae,
+        item.visitadoTioVisitacao,
+        item.restricaoMedicamentosa,
+        item.tipoRestricaoMedicamentosa,
+        item.dataNascimento,
+      ]
+        .map((value) => toCsvValue(String(value ?? '')))
+        .join(','),
+    ),
+  ];
+
+  const csvContent = '\uFEFF' + lines.join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const date = new Date();
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  link.href = url;
+  link.download = `confirmados-visitacao-${yyyy}${mm}${dd}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 function getHealthLabel(item: Inscricao): string {
@@ -84,9 +151,20 @@ export default function DashboardPage() {
                 <h2 className="text-sm font-semibold text-slate-800">
                   Resultado do filtro: {getFilterLabel(activeFilter)}
                 </h2>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {filteredInscricoes.length} registros
-                </span>
+                <div className="flex items-center gap-2">
+                  {activeFilter === 'confirmedVisit' && (
+                    <button
+                      type="button"
+                      onClick={() => exportConfirmedVisitCsv(filteredInscricoes)}
+                      className="h-8 rounded-md border border-cyan-300 bg-cyan-50 px-3 text-xs font-semibold text-cyan-800 hover:bg-cyan-100"
+                    >
+                      Exportar CSV
+                    </button>
+                  )}
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {filteredInscricoes.length} registros
+                  </span>
+                </div>
               </div>
 
               {filteredInscricoes.length === 0 ? (
@@ -96,7 +174,14 @@ export default function DashboardPage() {
                   {filteredInscricoes.map((item) => (
                     <article key={item.rowIndex} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-slate-900">#{item.rowIndex} - {item.nome || 'Nome nao informado'}</p>
+                        <div>
+                          <p className="font-semibold text-slate-900">#{item.rowIndex} - {item.nome || 'Nome nao informado'}</p>
+                          {activeFilter === 'confirmedVisit' && (
+                            <p className="mt-1 inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                              Idade: {getValue(item.idade)}
+                            </p>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2">
                           <span className="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-800">
                             {item.status || 'Nao informado'}
@@ -113,12 +198,27 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
-                        <p><strong className="font-semibold">Telefone:</strong> {item.telefone || item.celular || 'Nao informado'}</p>
-                        <p><strong className="font-semibold">Bairro:</strong> {item.localidade || 'Nao informado'}</p>
-                        <p><strong className="font-semibold">Camisa:</strong> {item.tamanhoCamisa || 'Nao informado'}</p>
-                        <p><strong className="font-semibold">Saude:</strong> {getHealthLabel(item)}</p>
-                      </div>
+                      {activeFilter === 'confirmedVisit' ? (
+                        <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
+                          <p><strong className="font-semibold">Alergia (V):</strong> {getValue(item.alergico)}</p>
+                          <p><strong className="font-semibold">W - Tipo alergia:</strong> {getValue(item.tipoAlergia)}</p>
+                          <p><strong className="font-semibold">X - Nome social:</strong> {getValue(item.nomeSocial)}</p>
+                          <p><strong className="font-semibold">Y - Celular:</strong> {getValue(item.celular)}</p>
+                          <p><strong className="font-semibold">Z - Nome do pai:</strong> {getValue(item.nomePai)}</p>
+                          <p><strong className="font-semibold">AA - Nome da mae:</strong> {getValue(item.nomeMae)}</p>
+                          <p><strong className="font-semibold">AV - Visitado:</strong> {getValue(item.visitadoTioVisitacao)}</p>
+                          <p><strong className="font-semibold">AX - Restr. medicamentosa:</strong> {getValue(item.restricaoMedicamentosa)}</p>
+                          <p><strong className="font-semibold">AY - Tipo restricao:</strong> {getValue(item.tipoRestricaoMedicamentosa)}</p>
+                          <p><strong className="font-semibold">O - Data nascimento:</strong> {getValue(item.dataNascimento)}</p>
+                        </div>
+                      ) : (
+                        <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
+                          <p><strong className="font-semibold">Telefone:</strong> {item.telefone || item.celular || 'Nao informado'}</p>
+                          <p><strong className="font-semibold">Bairro:</strong> {item.localidade || 'Nao informado'}</p>
+                          <p><strong className="font-semibold">Camisa:</strong> {item.tamanhoCamisa || 'Nao informado'}</p>
+                          <p><strong className="font-semibold">Saude:</strong> {getHealthLabel(item)}</p>
+                        </div>
+                      )}
 
                       <div className="mt-2 flex flex-wrap gap-2">
                         {hasHealthPending(item) && (
