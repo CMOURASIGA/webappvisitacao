@@ -199,17 +199,17 @@ export default function DashboardPage() {
                       </div>
 
                       {activeFilter === 'confirmedVisit' ? (
-                        <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
-                          <p><strong className="font-semibold">Alergia (V):</strong> {getValue(item.alergico)}</p>
-                          <p><strong className="font-semibold">W - Tipo alergia:</strong> {getValue(item.tipoAlergia)}</p>
-                          <p><strong className="font-semibold">X - Nome social:</strong> {getValue(item.nomeSocial)}</p>
-                          <p><strong className="font-semibold">Y - Celular:</strong> {getValue(item.celular)}</p>
-                          <p><strong className="font-semibold">Z - Nome do pai:</strong> {getValue(item.nomePai)}</p>
-                          <p><strong className="font-semibold">AA - Nome da mae:</strong> {getValue(item.nomeMae)}</p>
-                          <p><strong className="font-semibold">AV - Visitado:</strong> {getValue(item.visitadoTioVisitacao)}</p>
-                          <p><strong className="font-semibold">AX - Restr. medicamentosa:</strong> {getValue(item.restricaoMedicamentosa)}</p>
-                          <p><strong className="font-semibold">AY - Tipo restricao:</strong> {getValue(item.tipoRestricaoMedicamentosa)}</p>
-                          <p><strong className="font-semibold">O - Data nascimento:</strong> {getValue(item.dataNascimento)}</p>
+                        <div className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1.5 text-sm text-slate-700 sm:grid-cols-2">
+                          <p><strong className="font-semibold">Alergia:</strong> {getValue(item.alergico)}</p>
+                          <p><strong className="font-semibold">Tipo de alergia:</strong> {getValue(item.tipoAlergia)}</p>
+                          <p><strong className="font-semibold">Nome social:</strong> {getValue(item.nomeSocial)}</p>
+                          <p><strong className="font-semibold">Celular:</strong> {getValue(item.celular)}</p>
+                          <p><strong className="font-semibold">Nome do pai:</strong> {getValue(item.nomePai)}</p>
+                          <p><strong className="font-semibold">Nome da mae:</strong> {getValue(item.nomeMae)}</p>
+                          <p><strong className="font-semibold">Visitado:</strong> {getValue(item.visitadoTioVisitacao)}</p>
+                          <p><strong className="font-semibold">Restricao medicamentosa:</strong> {getValue(item.restricaoMedicamentosa)}</p>
+                          <p><strong className="font-semibold">Tipo de restricao:</strong> {getValue(item.tipoRestricaoMedicamentosa)}</p>
+                          <p><strong className="font-semibold">Data de nascimento:</strong> {getValue(item.dataNascimento)}</p>
                         </div>
                       ) : (
                         <div className="mt-2 grid grid-cols-1 gap-1 text-sm text-slate-700">
