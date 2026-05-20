@@ -111,7 +111,7 @@ export async function readInscricoes(q = ''): Promise<Inscricao[]> {
     url.searchParams.set('q', q.trim());
   }
 
-  const requestUrl = runtimeEnv.DEV ? `${url.pathname}${url.search}` : url.toString();
+  const requestUrl = url.toString();
   const response = await fetch(requestUrl);
   if (!response.ok) {
     throw new Error('Falha ao carregar registros.');
