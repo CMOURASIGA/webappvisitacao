@@ -11,6 +11,10 @@ function normalizeUrl(value?: string): string {
   return String(value || '').trim();
 }
 
+function isLikelyAppsScriptExecUrl(url: string): boolean {
+  return /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec\/?$/i.test(url);
+}
+
 function getBaseUrl(): string {
   const localUrl = normalizeUrl(runtimeEnv.VITE_APPS_SCRIPT_URL_LOCAL);
   const productionUrl = normalizeUrl(runtimeEnv.VITE_APPS_SCRIPT_URL);
@@ -22,17 +26,21 @@ function getBaseUrl(): string {
 
   if (!selectedUrl) {
     throw new Error(
-      'URL da API não configurada. Defina VITE_APPS_SCRIPT_URL_LOCAL (.env.local) para dev e VITE_APPS_SCRIPT_URL para produção.',
+      'URL da API nao configurada. Defina VITE_APPS_SCRIPT_URL_LOCAL (.env.local) para dev e VITE_APPS_SCRIPT_URL para producao.',
     );
   }
 
-  return selectedUrl.endsWith('/') ? selectedUrl.slice(0, -1) : selectedUrl;
+  const normalized = selectedUrl.endsWith('/') ? selectedUrl.slice(0, -1) : selectedUrl;
+  if (!isLikelyAppsScriptExecUrl(normalized)) {
+    throw new Error(
+      `URL da API invalida (${normalized}). Configure VITE_APPS_SCRIPT_URL(_LOCAL) com a URL Web App do Apps Script terminando em /exec.`,
+    );
+  }
+
+  return normalized;
 }
 
 function getRequestBase(): string {
-  if (runtimeEnv.DEV) {
-    return '/api';
-  }
   return getBaseUrl();
 }
 
@@ -84,13 +92,15 @@ function normalizeInscricao(item: unknown): Inscricao {
   };
 }
 
-async function parseJsonResponse(response: Response): Promise<unknown> {
+async function parseJsonResponse(response: Response, requestUrl: string): Promise<unknown> {
   const text = await response.text();
   try {
     return JSON.parse(text) as unknown;
   } catch {
     const preview = text.slice(0, 180).replace(/\s+/g, ' ');
-    throw new Error(`Resposta não JSON da API. Verifique permissão/URL do Apps Script. Trecho: ${preview}`);
+    throw new Error(
+      `Resposta nao JSON da API. URL: ${requestUrl}. Verifique se VITE_APPS_SCRIPT_URL(_LOCAL) aponta para o /exec correto do Apps Script. Trecho: ${preview}`,
+    );
   }
 }
 
@@ -107,9 +117,9 @@ export async function readInscricoes(q = ''): Promise<Inscricao[]> {
     throw new Error('Falha ao carregar registros.');
   }
 
-  const payload = await parseJsonResponse(response);
+  const payload = await parseJsonResponse(response, requestUrl);
   if (!Array.isArray(payload)) {
-    throw new Error('Resposta inválida da API.');
+    throw new Error('Resposta invalida da API.');
   }
 
   return payload
@@ -124,7 +134,8 @@ export async function updateInscricao(
 ): Promise<void> {
   // Apps Script Web App does not answer CORS preflight OPTIONS reliably.
   // Sending plain text JSON keeps this as a simple POST request.
-  const response = await fetch(getRequestBase(), {
+  const requestBase = getRequestBase();
+  const response = await fetch(requestBase, {
     method: 'POST',
     body: JSON.stringify({ action: 'update', rowIndex, data, notifyResponsavel }),
   });
@@ -133,7 +144,7 @@ export async function updateInscricao(
     throw new Error('Falha ao salvar registro.');
   }
 
-  const payload = (await parseJsonResponse(response)) as { error?: string | boolean; message?: string };
+  const payload = (await parseJsonResponse(response, requestBase)) as { error?: string | boolean; message?: string };
   if (payload?.error) {
     throw new Error(String(payload.message || payload.error));
   }
